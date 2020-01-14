@@ -29,8 +29,10 @@ class IOUtils:
     def list_pdf_files_in_dir(dir):
         paths_to_pdf_files = []
         pdf_files_in_dir = 'PDF documents found in directory:\n'
+        pdf_names = []
         for filename in os.listdir(dir):
             if filename.endswith('.pdf'):
                 pdf_files_in_dir += filename + '\n'
+                pdf_names.append(filename)
                 paths_to_pdf_files.append(dir + '/' + filename)
-        return [paths_to_pdf_files, pdf_files_in_dir]
+        return [paths_to_pdf_files, pdf_files_in_dir, pdf_names]

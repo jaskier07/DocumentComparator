@@ -7,17 +7,17 @@ import numpy as np
 import re
 from tkinter.ttk import *
 
+from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
 
 
 class DocumentComparator:
-
     __PUNCTUATION = '!"#$%&\'()*+,./:;<=>?@[\\]^_`{|}~'
     __BAR_UPDATES = 5
     __token = nltk.tokenize.ToktokTokenizer()
     __bar_incrementation_value: None
 
-    def compare_documents(self, paths_to_pdf_files, bar):
+    def compare_documents(self, paths_to_pdf_files, bar, filenames):
         nltk.download('stopwords')
         nltk.download('wordnet')
         __bar_incrementation_value = 200.0 / len(paths_to_pdf_files) / self.__BAR_UPDATES
@@ -50,6 +50,12 @@ class DocumentComparator:
         np.fill_diagonal(arr, np.nan)
 
         print(arr)
+
+        # TODO: To be moved out of this method and this class
+        drawer = GraphDrawer()
+        drawer.draw(arr, filenames)
+
+        return arr
 
     def __update_bar(self, bar: Progressbar):
         bar['value'] = bar['value'] + 10
@@ -102,4 +108,3 @@ class DocumentComparator:
             punctuation_filtered.append(regex.sub('', w))
         filtered_list = self.__strip_list_noempty(punctuation_filtered)
         return ' '.join(map(str, filtered_list))
-
