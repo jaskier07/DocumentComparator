@@ -1,6 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-
+import io
 
 class GraphDrawer:
 
@@ -20,7 +20,7 @@ class GraphDrawer:
         edges = dict(zip(edges, weights))
 
         nx.draw_networkx_edge_labels(g, pos, edge_labels=edges)
-        plt.show()
+        plt.savefig('appdata/compare_result.png')
 
     def __getGraph(self, array, titles):
         g = nx.Graph()

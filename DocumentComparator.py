@@ -6,8 +6,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import re
 from tkinter.ttk import *
-
-from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
 
 
@@ -48,12 +46,6 @@ class DocumentComparator:
 
         arr = pairwise_similarity.toarray()
         np.fill_diagonal(arr, np.nan)
-
-        print(arr)
-
-        # TODO: To be moved out of this method and this class
-        drawer = GraphDrawer()
-        drawer.draw(arr, filenames)
 
         return arr
 
