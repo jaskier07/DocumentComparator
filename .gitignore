@@ -3,3 +3,4 @@ iwi.py
 *.xml
 .idea/
 __pycache__/
+data/

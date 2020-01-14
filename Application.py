@@ -1,6 +1,8 @@
 from tkinter import filedialog
 from tkinter import *
 from functools import partial
+from tkinter.ttk import *
+from _thread import start_new_thread
 
 from DocumentComparator import DocumentComparator
 from IOUtils import IOUtils
@@ -11,7 +13,9 @@ def browse_button():
     [paths_to_pdf_files, pdf_files_in_dir] = IOUtils.list_pdf_files_in_dir(folder_path)
     label_info['text'] = pdf_files_in_dir
     dc = DocumentComparator()
-    button_compare_documents = Button(text="Compare documents", command=partial(dc.compare_documents, paths_to_pdf_files))
+    bar = Progressbar(window, length=200)
+    bar.grid(row=0, column=1)
+    button_compare_documents = Button(text="Compare documents", command=partial(dc.compare_documents, paths_to_pdf_files, bar))
     button_compare_documents.grid(row=1, column=1)
 
 
