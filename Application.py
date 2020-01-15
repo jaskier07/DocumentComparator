@@ -14,22 +14,22 @@ from IOUtils import IOUtils
 
 
 def compare_documents(paths_to_pdf_files, pdf_names):
-    dc = DocumentComparator()
-
     label_info_progressbar['text'] = 'Comparing...'
-    label_info_progressbar.grid(row=3, column=0, sticky="S")
-
+    label_info_progressbar.update()
     bar.grid(row=4, column=0)
 
+    dc = DocumentComparator()
     arr = dc.compare_documents(paths_to_pdf_files, bar)
+
     label_info_progressbar['text'] = 'Comparing completed.'
+    label_info_progressbar.update()
 
     drawer = GraphDrawer()
     drawer.draw(arr, pdf_names)
 
 
-def browse_button():
-    folder_path = filedialog.askopenfilenames(filetypes=(("pdf files","*.pdf"),("all files","*.*")))
+def browse_files():
+    folder_path = filedialog.askopenfilenames(filetypes=(("pdf files", "*.pdf"), ("all files", "*.*")))
     if folder_path != '':
         [paths_to_pdf_files, pdf_names] = IOUtils.list_pdf_files_in_dir(folder_path)
 
@@ -86,11 +86,12 @@ scroll_horizontal.grid(row=15, column=1, sticky=E + W, columnspan=3)
 
 listbox.config(yscrollcommand=scroll_vertical.set, xscrollcommand=scroll_horizontal.set)
 
-label_info_progressbar = Label(window, text='Comparing...')
+label_info_progressbar = Label(window, text='')
+label_info_progressbar.grid(row=3, column=0, sticky="S")
 
 bar = Progressbar(window, length=200)
 
-button_browse = Button(text="Select files", command=browse_button)
+button_browse = Button(text="Select files", command=browse_files)
 button_browse.grid(row=1, column=0, sticky="S", padx=(5, 5))
 
 window.mainloop()
