@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import font
 from tkinter.ttk import *
+from tkinter import messagebox
 
 from PIL import Image
 from PIL import ImageTk
@@ -18,32 +19,36 @@ def compare_documents(paths_to_pdf_files, pdf_names):
     label_info_progressbar = Label(window, text='Comparing...')
     label_info_progressbar.grid(row=6, column=0, sticky="N")
 
-    bar = Progressbar(window, length=200)
     bar.grid(row=7, column=0)
 
     arr = dc.compare_documents(paths_to_pdf_files, bar)
     label_info_progressbar['text'] = 'Comparing completed.'
 
     drawer = GraphDrawer()
-    drawer.draw(arr, pdf_names, True)
-
-    button_open_in_new_window = Button(text="Open image in new window",
-                                       command=partial(drawer.draw, arr, pdf_names, False))
-    button_open_in_new_window.grid(row=0, column=5)
+    drawer.draw(arr, pdf_names)
 
 
 def browse_button():
     folder_path = filedialog.askdirectory()
     [paths_to_pdf_files, pdf_files_in_dir, pdf_names] = IOUtils.list_pdf_files_in_dir(folder_path)
 
-    listbox.delete(0, END)
-    for (i, elem) in enumerate(pdf_files_in_dir):
-        listbox.insert(i, elem)
+    bar['value'] = 0
+    label_header_info['text']
+    bar.update()
 
-    label_header_info['text'] = 'PDFs found in directory:'
-    button_compare_documents = Button(text="Compare documents",
-                                      command=partial(compare_documents, paths_to_pdf_files, pdf_names))
-    button_compare_documents.grid(row=4, column=0, padx=(5, 5))
+    if len(pdf_names) == 0:
+         messagebox.showerror('Wrong directory', 'No PDFs found in this directory!')
+    elif len(pdf_names) == 1:
+        messagebox.showerror('Wrong directory', 'Only 1 PDF found in this directory!')
+    else:
+        listbox.delete(0, END)
+        for (i, elem) in enumerate(pdf_files_in_dir):
+            listbox.insert(i, elem)
+
+        label_header_info['text'] = 'PDFs found in directory:'
+        button_compare_documents = Button(text="Compare documents",
+                                          command=partial(compare_documents, paths_to_pdf_files, pdf_names))
+        button_compare_documents.grid(row=4, column=0, sticky="NW", padx=(5, 5))
 
 
 def configure_styles():
@@ -54,7 +59,7 @@ def configure_styles():
 
 window = Tk()
 window.title("Document comparator")
-window.geometry('1200x640')
+window.geometry('800x640')
 
 configure_styles()
 
@@ -75,6 +80,10 @@ scroll_horizontal.config(command=listbox.xview)
 scroll_horizontal.grid(row=3, column=0, sticky=E+W, columnspan=2)
 
 listbox.config(yscrollcommand=scroll_vertical.set, xscrollcommand=scroll_horizontal.set)
+
+label_info_progressbar = Label(window, text='Comparing...')
+
+bar = Progressbar(window, length=200)
 
 button_browse = Button(text="Browse for directory", command=browse_button)
 button_browse.grid(row=0, column=4, sticky="W", padx=(5, 5))
