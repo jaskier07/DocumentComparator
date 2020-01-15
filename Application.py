@@ -2,11 +2,8 @@ from functools import partial
 from tkinter import *
 from tkinter import filedialog
 from tkinter import font
-from tkinter.ttk import *
 from tkinter import messagebox
-
-from PIL import Image
-from PIL import ImageTk
+from tkinter.ttk import *
 
 from DocumentComparator import DocumentComparator
 from GraphDrawer import GraphDrawer
