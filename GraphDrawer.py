@@ -7,7 +7,7 @@ class GraphDrawer:
     __EDGE_WEIGHT_PRECISION = 4
     __MAX_NODE_NAME_LENGTH = 25
 
-    def draw(self, array, file_names):
+    def draw(self, array, file_names, save):
         g = self.__get_graph(array, self.__prepare_file_names(file_names))
 
         plt.figure(figsize=(10, 10))
@@ -23,7 +23,11 @@ class GraphDrawer:
         edges = dict(zip(edges, weights))
 
         nx.draw_networkx_edge_labels(g, pos, edge_labels=edges)
-        plt.savefig('appdata/compare_result.png')
+
+        if save:
+            plt.savefig('appdata/compare_result.png')
+        else:
+            plt.show()
 
     def __get_graph(self, array, titles):
         g = nx.Graph()
