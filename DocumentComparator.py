@@ -1,11 +1,11 @@
 import os
-from tkinter import Tk
-
-import nltk
-from sklearn.feature_extraction.text import TfidfVectorizer
-import numpy as np
 import re
 from tkinter.ttk import *
+
+import nltk
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 from IOUtils import IOUtils
 
 
@@ -15,7 +15,7 @@ class DocumentComparator:
     __token = nltk.tokenize.ToktokTokenizer()
     __bar_incrementation_value: None
 
-    def compare_documents(self, paths_to_pdf_files, bar, filenames):
+    def compare_documents(self, paths_to_pdf_files, bar):
         nltk.download('stopwords')
         nltk.download('wordnet')
         __bar_incrementation_value = 200.0 / len(paths_to_pdf_files) / self.__BAR_UPDATES
@@ -28,20 +28,20 @@ class DocumentComparator:
             self.__update_bar(bar)
 
         self.__update_bar(bar)
-        corpusPreproc = []
+        corpus_preproc = []
         for text in document_contents:
             preprocessed_text = self.__clean_text(text)
             self.__update_bar(bar)
             preprocessed_text = self.__clean_punct(preprocessed_text)
             self.__update_bar(bar)
-            preprocessed_text = self.__stopWordsRemove(preprocessed_text)
+            preprocessed_text = self.__stop_words_remove(preprocessed_text)
             self.__update_bar(bar)
-            preprocessed_text = self.__lemitizeWords(preprocessed_text)
+            preprocessed_text = self.__lemitize_words(preprocessed_text)
             self.__update_bar(bar)
-            corpusPreproc.append(preprocessed_text)
+            corpus_preproc.append(preprocessed_text)
 
         vect = TfidfVectorizer(stop_words="english", strip_accents='unicode')
-        tfidf = vect.fit_transform(corpusPreproc)
+        tfidf = vect.fit_transform(corpus_preproc)
         pairwise_similarity = tfidf * tfidf.T
 
         arr = pairwise_similarity.toarray()
@@ -71,17 +71,17 @@ class DocumentComparator:
         text = text.strip(' ')
         return text
 
-    def __lemitizeWords(self, text):
+    def __lemitize_words(self, text):
         words = self.__token.tokenize(text)
         lemma = nltk.stem.WordNetLemmatizer()
 
-        listLemma = []
+        list_lemma = []
         for w in words:
             x = lemma.lemmatize(w, pos="v")
-            listLemma.append(x)
-        return ' '.join(map(str, listLemma))
+            list_lemma.append(x)
+        return ' '.join(map(str, list_lemma))
 
-    def __stopWordsRemove(self, text):
+    def __stop_words_remove(self, text):
         stop_words = set(nltk.corpus.stopwords.words("english"))
         words = self.__token.tokenize(text)
         filtered = [w for w in words if not w in stop_words]
@@ -95,6 +95,7 @@ class DocumentComparator:
         words = self.__token.tokenize(text)
         punctuation_filtered = []
         regex = re.compile('[%s]' % re.escape(self.__PUNCTUATION))
+        # FIXME Linia poniżej jest nieużywana, ma zostać?
         remove_punctuation = text.translate(str.maketrans('', '', self.__PUNCTUATION))
         for w in words:
             punctuation_filtered.append(regex.sub('', w))

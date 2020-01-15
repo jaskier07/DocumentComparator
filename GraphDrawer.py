@@ -1,11 +1,14 @@
-import networkx as nx
 import matplotlib.pyplot as plt
-import io
+import networkx as nx
+
 
 class GraphDrawer:
+    __MIN_EDGE_WEIGHT = 0.04
+    __EDGE_WEIGHT_PRECISION = 4
+    __MAX_NODE_NAME_LENGTH = 25
 
-    def draw(self, array, filenames):
-        g = self.__getGraph(array, self.__prepareFilenames(filenames))
+    def draw(self, array, file_names):
+        g = self.__get_graph(array, self.__prepare_file_names(file_names))
 
         plt.figure(figsize=(10, 10))
 
@@ -16,24 +19,26 @@ class GraphDrawer:
         nx.draw(g, pos, with_labels=True, node_size=1200, node_color="skyblue", node_shape="h", font_size=11, alpha=0.8,
                 width=weights)
 
-        weights = [round(g[u][v]['weight'], 4) for u, v in edges]
+        weights = [round(g[u][v]['weight'], self.__EDGE_WEIGHT_PRECISION) for u, v in edges]
         edges = dict(zip(edges, weights))
 
         nx.draw_networkx_edge_labels(g, pos, edge_labels=edges)
         plt.savefig('appdata/compare_result.png')
 
-    def __getGraph(self, array, titles):
+    def __get_graph(self, array, titles):
         g = nx.Graph()
         for i in range(len(array[0])):
             for j in range(i + 1, len(array[0])):
-                g.add_edge(titles[i], titles[j], weight=array[i][j])
+                edge_weight = array[i][j]
+                if edge_weight > self.__MIN_EDGE_WEIGHT:
+                    g.add_edge(titles[i], titles[j], weight=edge_weight)
         return g
 
-    def __prepareFilenames(self, filenames):
-        shortFilenames = []
-        for i in range(len(filenames)):
-            max_len = 25
-            name = filenames[i][:max_len] + '...' if len(filenames[i]) > max_len else filenames[i]
-            shortFilenames.append(name)
+    def __prepare_file_names(self, file_names):
+        short_file_names = []
+        for i in range(len(file_names)):
+            name = file_names[i][:self.__MAX_NODE_NAME_LENGTH] + '...' \
+                if len(file_names[i]) > self.__MAX_NODE_NAME_LENGTH else file_names[i]
+            short_file_names.append(name)
 
-        return shortFilenames
+        return short_file_names

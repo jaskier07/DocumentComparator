@@ -1,17 +1,16 @@
-import tkinter
-from tkinter import filedialog, ttk
-from tkinter import *
 from functools import partial
-from tkinter.ttk import *
-from _thread import start_new_thread
+from tkinter import *
+from tkinter import filedialog
 from tkinter import font
-from PIL import Image
+from tkinter.ttk import *
 
+from PIL import Image
 from PIL import ImageTk
 
 from DocumentComparator import DocumentComparator
 from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
+
 
 def compare_documents(paths_to_pdf_files, pdf_names):
     dc = DocumentComparator()
@@ -22,7 +21,7 @@ def compare_documents(paths_to_pdf_files, pdf_names):
     bar = Progressbar(window, length=200)
     bar.grid(row=4, column=0)
 
-    arr = dc.compare_documents(paths_to_pdf_files, bar, pdf_names)
+    arr = dc.compare_documents(paths_to_pdf_files, bar)
     label_info_progressbar['text'] = 'Comparing completed.'
 
     drawer = GraphDrawer()
