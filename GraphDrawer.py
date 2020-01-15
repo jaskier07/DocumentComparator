@@ -23,7 +23,8 @@ class GraphDrawer:
         edges = dict(zip(edges, weights))
 
         nx.draw_networkx_edge_labels(g, pos, edge_labels=edges)
-        plt.savefig('appdata/compare_result.png')
+
+        plt.show()
 
     def __get_graph(self, array, titles):
         g = nx.Graph()
