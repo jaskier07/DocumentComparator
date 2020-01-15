@@ -28,11 +28,11 @@ class IOUtils:
     @staticmethod
     def list_pdf_files_in_dir(directory):
         paths_to_pdf_files = []
-        pdf_files_in_dir = ''
+        pdf_files_in_dir = []
         pdf_names = []
         for filename in os.listdir(directory):
             if filename.endswith('.pdf'):
-                pdf_files_in_dir += filename + '\n'
+                pdf_files_in_dir.append(filename)
                 pdf_names.append(filename)
                 paths_to_pdf_files.append(directory + '/' + filename)
         return [paths_to_pdf_files, pdf_files_in_dir, pdf_names]
