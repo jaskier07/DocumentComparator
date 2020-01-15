@@ -16,7 +16,7 @@ from IOUtils import IOUtils
 def compare_documents(paths_to_pdf_files, pdf_names):
     dc = DocumentComparator()
 
-    label_info_progressbar = Label(window, text='Comparing...')
+    label_info_progressbar['text'] = 'Comparing...'
     label_info_progressbar.grid(row=3, column=0, sticky="S")
 
     bar.grid(row=4, column=0)
@@ -34,6 +34,7 @@ def browse_button():
         [paths_to_pdf_files, pdf_names] = IOUtils.list_pdf_files_in_dir(folder_path)
 
         bar['value'] = 0
+        bar.grid_remove()
         bar.update()
 
         if len(pdf_names) < 2:
@@ -43,7 +44,8 @@ def browse_button():
             for (i, elem) in enumerate(pdf_names):
                 listbox.insert(i, elem)
 
-            label_header_info['text'] = 'PDFs select:'
+            label_info_progressbar['text'] = ''
+            label_header_info['text'] = 'PDF selection:'
             button_compare_documents = Button(text="Compare documents",
                                               command=partial(compare_documents, paths_to_pdf_files, pdf_names))
             button_compare_documents.grid(column=0, row=2, sticky="S", padx=(5, 5))
