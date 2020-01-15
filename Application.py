@@ -29,26 +29,24 @@ def compare_documents(paths_to_pdf_files, pdf_names):
 
 
 def browse_button():
-    folder_path = filedialog.askdirectory()
-    [paths_to_pdf_files, pdf_files_in_dir, pdf_names] = IOUtils.list_pdf_files_in_dir(folder_path)
+    folder_path = filedialog.askopenfilenames(filetypes=(("pdf files","*.pdf"),("all files","*.*")))
+    if folder_path != '':
+        [paths_to_pdf_files, pdf_names] = IOUtils.list_pdf_files_in_dir(folder_path)
 
-    bar['value'] = 0
-    label_header_info['text']
-    bar.update()
+        bar['value'] = 0
+        bar.update()
 
-    if len(pdf_names) == 0:
-         messagebox.showerror('Wrong directory', 'No PDFs found in this directory!')
-    elif len(pdf_names) == 1:
-        messagebox.showerror('Wrong directory', 'Only 1 PDF found in this directory!')
-    else:
-        listbox.delete(0, END)
-        for (i, elem) in enumerate(pdf_files_in_dir):
-            listbox.insert(i, elem)
+        if len(pdf_names) < 2:
+            messagebox.showerror('Wrong directory', 'Select two or more PDF files.')
+        else:
+            listbox.delete(0, END)
+            for (i, elem) in enumerate(pdf_names):
+                listbox.insert(i, elem)
 
-        label_header_info['text'] = 'PDFs found in directory:'
-        button_compare_documents = Button(text="Compare documents",
-                                          command=partial(compare_documents, paths_to_pdf_files, pdf_names))
-        button_compare_documents.grid(column=0, row=2, sticky="N", padx=(5, 5))
+            label_header_info['text'] = 'PDFs select:'
+            button_compare_documents = Button(text="Compare documents",
+                                              command=partial(compare_documents, paths_to_pdf_files, pdf_names))
+            button_compare_documents.grid(column=0, row=2, sticky="S", padx=(5, 5))
 
 
 def configure_styles():
@@ -59,30 +57,30 @@ def configure_styles():
 
 window = Tk()
 window.title("Document comparator")
-window.geometry('800x640')
+window.geometry('660x400')
 
 configure_styles()
 
 label_program_name = Label(window, text='Document comparator')
-label_program_name.configure(font=('calibri', 20))
-label_program_name.grid(row=0, column=0)
+label_program_name.configure(font=('calibri', 20, "bold"), foreground="#3d423a")
+label_program_name.grid(row=0, column=0, padx=(5, 5))
 
-label_header_info = Label(window, text='First select a directory')
+label_header_info = Label(window, text='First select PDF files...')
 label_header_info.configure(font=('calibri', 15))
-label_header_info.grid(row=0, column=1, padx=(5, 5), columnspan=3)
+label_header_info.grid(row=0, column=1, padx=(5, 5), sticky=W, columnspan=3)
 
 listbox = Listbox(window)
 listbox.yview()
-listbox.grid(row=1, column=1, sticky=N+W, rowspan=14, columnspan=3)
-listbox.configure(width=40, height=20)
+listbox.grid(row=1, column=1, sticky=N + W, rowspan=14, columnspan=3)
+listbox.configure(width=40, height=15)
 
 scroll_vertical = Scrollbar(window, orient=VERTICAL)
 scroll_vertical.config(command=listbox.yview)
-scroll_vertical.grid(row=1, column=4, sticky=N+S, rowspan=3)
+scroll_vertical.grid(row=1, column=4, sticky=N + S, rowspan=14)
 
 scroll_horizontal = Scrollbar(window, orient=HORIZONTAL)
 scroll_horizontal.config(command=listbox.xview)
-scroll_horizontal.grid(row=15, column=1, sticky=E+W, columnspan=3)
+scroll_horizontal.grid(row=15, column=1, sticky=E + W, columnspan=3)
 
 listbox.config(yscrollcommand=scroll_vertical.set, xscrollcommand=scroll_horizontal.set)
 
@@ -90,7 +88,7 @@ label_info_progressbar = Label(window, text='Comparing...')
 
 bar = Progressbar(window, length=200)
 
-button_browse = Button(text="Browse for directory", command=browse_button)
-button_browse.grid(row=1, column=0, sticky="N", padx=(5, 5))
+button_browse = Button(text="Select files", command=browse_button)
+button_browse.grid(row=1, column=0, sticky="S", padx=(5, 5))
 
 window.mainloop()
