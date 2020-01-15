@@ -17,9 +17,9 @@ def compare_documents(paths_to_pdf_files, pdf_names):
     dc = DocumentComparator()
 
     label_info_progressbar = Label(window, text='Comparing...')
-    label_info_progressbar.grid(row=6, column=0, sticky="N")
+    label_info_progressbar.grid(row=3, column=0, sticky="S")
 
-    bar.grid(row=7, column=0)
+    bar.grid(row=4, column=0)
 
     arr = dc.compare_documents(paths_to_pdf_files, bar)
     label_info_progressbar['text'] = 'Comparing completed.'
@@ -48,7 +48,7 @@ def browse_button():
         label_header_info['text'] = 'PDFs found in directory:'
         button_compare_documents = Button(text="Compare documents",
                                           command=partial(compare_documents, paths_to_pdf_files, pdf_names))
-        button_compare_documents.grid(row=4, column=0, sticky="NW", padx=(5, 5))
+        button_compare_documents.grid(column=0, row=2, sticky="N", padx=(5, 5))
 
 
 def configure_styles():
@@ -63,21 +63,26 @@ window.geometry('800x640')
 
 configure_styles()
 
+label_program_name = Label(window, text='Document comparator')
+label_program_name.configure(font=('calibri', 20))
+label_program_name.grid(row=0, column=0)
+
 label_header_info = Label(window, text='First select a directory')
 label_header_info.configure(font=('calibri', 15))
-label_header_info.grid(row=0, column=0, padx=(5, 5), columnspan=3)
+label_header_info.grid(row=0, column=1, padx=(5, 5), columnspan=3)
 
 listbox = Listbox(window)
 listbox.yview()
-listbox.grid(row=1, column=0, sticky=N+W, rowspan=2, columnspan=2)
+listbox.grid(row=1, column=1, sticky=N+W, rowspan=14, columnspan=3)
+listbox.configure(width=40, height=20)
 
 scroll_vertical = Scrollbar(window, orient=VERTICAL)
 scroll_vertical.config(command=listbox.yview)
-scroll_vertical.grid(row=1, column=2, sticky=N+S, rowspan=2)
+scroll_vertical.grid(row=1, column=4, sticky=N+S, rowspan=3)
 
 scroll_horizontal = Scrollbar(window, orient=HORIZONTAL)
 scroll_horizontal.config(command=listbox.xview)
-scroll_horizontal.grid(row=3, column=0, sticky=E+W, columnspan=2)
+scroll_horizontal.grid(row=15, column=1, sticky=E+W, columnspan=3)
 
 listbox.config(yscrollcommand=scroll_vertical.set, xscrollcommand=scroll_horizontal.set)
 
@@ -86,6 +91,6 @@ label_info_progressbar = Label(window, text='Comparing...')
 bar = Progressbar(window, length=200)
 
 button_browse = Button(text="Browse for directory", command=browse_button)
-button_browse.grid(row=0, column=4, sticky="W", padx=(5, 5))
+button_browse.grid(row=1, column=0, sticky="N", padx=(5, 5))
 
 window.mainloop()
