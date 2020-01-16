@@ -2,21 +2,16 @@ from functools import partial
 from tkinter import *
 from tkinter import filedialog
 from tkinter import font
-from tkinter.ttk import *
 from tkinter import messagebox
-
-from PIL import Image
-from PIL import ImageTk
+from tkinter.ttk import *
 
 from SimilarityTable import SimilarityTable
 from DocumentComparator import DocumentComparator
 from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
 
-def compare_documents(paths_to_pdf_files, pdf_names):
-    bar['value'] = 0
-    bar.update()
 
+def compare_documents(paths_to_pdf_files, pdf_names):
     label_info_progressbar['text'] = 'Comparing...'
     label_info_progressbar.update()
     bar.grid(row=4, column=0)
@@ -38,6 +33,10 @@ def browse_files():
     if folder_path != '':
         [paths_to_pdf_files, pdf_names] = IOUtils.list_pdf_files_in_dir(folder_path)
 
+        bar['value'] = 0
+        bar.grid_remove()
+        bar.update()
+
         if len(pdf_names) < 2:
             messagebox.showerror('Wrong directory', 'Select two or more PDF files.')
         else:
@@ -45,7 +44,8 @@ def browse_files():
             for (i, elem) in enumerate(pdf_names):
                 listbox.insert(i, elem)
 
-            label_header_info['text'] = 'PDFs select:'
+            label_info_progressbar['text'] = ''
+            label_header_info['text'] = 'PDF selection:'
             button_compare_documents = Button(text="Compare documents",
                                               command=partial(compare_documents, paths_to_pdf_files, pdf_names))
             button_compare_documents.grid(column=0, row=2, sticky="S", padx=(5, 5))
