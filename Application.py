@@ -11,7 +11,22 @@ from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
 
 
+def hide_components():
+    bar['value'] = 0
+    bar.grid_remove()
+    bar.update()
+
+    label_info_progressbar['text'] = ''
+
+
+def show_similarity_table(arr, pdf_names):
+    SimilarityTable().createAndShow(arr, pdf_names, window)
+
+
 def compare_documents(paths_to_pdf_files, pdf_names):
+    bar['value'] = 0
+    bar.update()
+
     label_info_progressbar['text'] = 'Comparing...'
     label_info_progressbar.update()
     bar.grid(row=4, column=0)
@@ -22,7 +37,9 @@ def compare_documents(paths_to_pdf_files, pdf_names):
     label_info_progressbar['text'] = 'Comparing completed.'
     label_info_progressbar.update()
 
-    SimilarityTable().create(arr, pdf_names, window)
+    button_show_similarity_table = Button(text='Show similarity table',
+                                          command=partial(show_similarity_table, arr, pdf_names))
+    button_show_similarity_table.grid(row=5, column=0)
 
     drawer = GraphDrawer()
     drawer.draw(arr, pdf_names)
@@ -33,9 +50,7 @@ def browse_files():
     if folder_path != '':
         [paths_to_pdf_files, pdf_names] = IOUtils.list_pdf_files_in_dir(folder_path)
 
-        bar['value'] = 0
-        bar.grid_remove()
-        bar.update()
+        hide_components()
 
         if len(pdf_names) < 2:
             messagebox.showerror('Wrong directory', 'Select two or more PDF files.')
@@ -44,7 +59,6 @@ def browse_files():
             for (i, elem) in enumerate(pdf_names):
                 listbox.insert(i, elem)
 
-            label_info_progressbar['text'] = ''
             label_header_info['text'] = 'PDF selection:'
             button_compare_documents = Button(text="Compare documents",
                                               command=partial(compare_documents, paths_to_pdf_files, pdf_names))

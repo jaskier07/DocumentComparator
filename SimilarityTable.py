@@ -5,7 +5,7 @@ from tkinter import Toplevel
 
 class SimilarityTable:
 
-    def create(self, arr, filenames, window):
+    def createAndShow(self, arr, filenames, window):
         table_window = Toplevel(window)
 
         columns = ('File #1', 'File #2', 'Similarity')
