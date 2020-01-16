@@ -8,12 +8,15 @@ from tkinter import messagebox
 from PIL import Image
 from PIL import ImageTk
 
+from SimilarityTable import SimilarityTable
 from DocumentComparator import DocumentComparator
 from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
 
-
 def compare_documents(paths_to_pdf_files, pdf_names):
+    bar['value'] = 0
+    bar.update()
+
     label_info_progressbar['text'] = 'Comparing...'
     label_info_progressbar.update()
     bar.grid(row=4, column=0)
@@ -24,6 +27,8 @@ def compare_documents(paths_to_pdf_files, pdf_names):
     label_info_progressbar['text'] = 'Comparing completed.'
     label_info_progressbar.update()
 
+    SimilarityTable().create(arr, pdf_names, window)
+
     drawer = GraphDrawer()
     drawer.draw(arr, pdf_names)
 
@@ -32,9 +37,6 @@ def browse_files():
     folder_path = filedialog.askopenfilenames(filetypes=(("pdf files", "*.pdf"), ("all files", "*.*")))
     if folder_path != '':
         [paths_to_pdf_files, pdf_names] = IOUtils.list_pdf_files_in_dir(folder_path)
-
-        bar['value'] = 0
-        bar.update()
 
         if len(pdf_names) < 2:
             messagebox.showerror('Wrong directory', 'Select two or more PDF files.')

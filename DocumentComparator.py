@@ -5,6 +5,7 @@ from tkinter.ttk import *
 import nltk
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 from IOUtils import IOUtils
 
@@ -40,11 +41,10 @@ class DocumentComparator:
             self.__update_bar(bar)
             corpus_preproc.append(preprocessed_text)
 
-        vect = TfidfVectorizer(stop_words="english", strip_accents='unicode')
+        vect = TfidfVectorizer(strip_accents='unicode')
         tfidf = vect.fit_transform(corpus_preproc)
-        pairwise_similarity = tfidf * tfidf.T
+        arr = cosine_similarity(tfidf)
 
-        arr = pairwise_similarity.toarray()
         np.fill_diagonal(arr, np.nan)
 
         return arr
