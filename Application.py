@@ -13,7 +13,8 @@ from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
 from stempel import StempelStemmer
 
-'''
+DEMO_MODE = True
+
 def hide_components():
     bar['value'] = 0
     bar.grid_remove()
@@ -73,56 +74,57 @@ def configure_styles():
     default_font.configure(size=12)
     window.option_add("*Font", default_font)
 
-nltk.download('stopwords')
-nltk.download('wordnet')
 
-window = Tk()
-window.title("Document comparator")
-window.geometry('660x400')
+if not DEMO_MODE:
+    nltk.download('stopwords')
+    nltk.download('wordnet')
 
-configure_styles()
+    window = Tk()
+    window.title("Document comparator")
+    window.geometry('660x400')
 
-label_program_name = Label(window, text='Document comparator')
-label_program_name.configure(font=('calibri', 20, "bold"), foreground="#3d423a")
-label_program_name.grid(row=0, column=0, padx=(5, 5))
+    configure_styles()
 
-label_header_info = Label(window, text='First select PDF files...')
-label_header_info.configure(font=('calibri', 15))
-label_header_info.grid(row=0, column=1, padx=(5, 5), sticky=W, columnspan=3)
+    label_program_name = Label(window, text='Document comparator')
+    label_program_name.configure(font=('calibri', 20, "bold"), foreground="#3d423a")
+    label_program_name.grid(row=0, column=0, padx=(5, 5))
 
-listbox = Listbox(window)
-listbox.yview()
-listbox.grid(row=1, column=1, sticky=N + W, rowspan=14, columnspan=3)
-listbox.configure(width=40, height=15)
+    label_header_info = Label(window, text='First select PDF files...')
+    label_header_info.configure(font=('calibri', 15))
+    label_header_info.grid(row=0, column=1, padx=(5, 5), sticky=W, columnspan=3)
 
-scroll_vertical = Scrollbar(window, orient=VERTICAL)
-scroll_vertical.config(command=listbox.yview)
-scroll_vertical.grid(row=1, column=4, sticky=N + S, rowspan=14)
+    listbox = Listbox(window)
+    listbox.yview()
+    listbox.grid(row=1, column=1, sticky=N + W, rowspan=14, columnspan=3)
+    listbox.configure(width=40, height=15)
 
-scroll_horizontal = Scrollbar(window, orient=HORIZONTAL)
-scroll_horizontal.config(command=listbox.xview)
-scroll_horizontal.grid(row=15, column=1, sticky=E + W, columnspan=3)
+    scroll_vertical = Scrollbar(window, orient=VERTICAL)
+    scroll_vertical.config(command=listbox.yview)
+    scroll_vertical.grid(row=1, column=4, sticky=N + S, rowspan=14)
 
-listbox.config(yscrollcommand=scroll_vertical.set, xscrollcommand=scroll_horizontal.set)
+    scroll_horizontal = Scrollbar(window, orient=HORIZONTAL)
+    scroll_horizontal.config(command=listbox.xview)
+    scroll_horizontal.grid(row=15, column=1, sticky=E + W, columnspan=3)
 
-label_info_progressbar = Label(window, text='')
-label_info_progressbar.grid(row=3, column=0, sticky="S")
+    listbox.config(yscrollcommand=scroll_vertical.set, xscrollcommand=scroll_horizontal.set)
 
-bar = Progressbar(window, length=200)
+    label_info_progressbar = Label(window, text='')
+    label_info_progressbar.grid(row=3, column=0, sticky="S")
 
-button_browse = Button(text="Select files", command=browse_files)
-button_browse.grid(row=1, column=0, sticky="S", padx=(5, 5))
+    bar = Progressbar(window, length=200)
 
-window.mainloop()
-'''
+    button_browse = Button(text="Select files", command=browse_files)
+    button_browse.grid(row=1, column=0, sticky="S", padx=(5, 5))
 
-arr = [[0, 0.53682293, 0.49240103, 0.49318128, 0.04009207, 0.03515585],
-       [0.53682293, 0, 0.49677289, 0.54755336, 0.01423449, 0.01342816],
-       [0.49240103, 0.49677289, 0, 0.4856281, 0.03298175, 0.0299892],
-       [0.49318128, 0.54755336, 0.4856281, 0, 0.02699985, 0.02418876],
-       [0.04009207, 0.01423449, 0.03298175, 0.02699985, 0, 0.97959166],
-       [0.03515585, 0.01342816, 0.0299892, 0.02418876, 0.97959166, 0]]
-filenames = ['IO Analiza biznesowa i systemowa.pdf', 'IO Obszary działań IO.pdf', 'IO Projektowanie.pdf',
-             'IO Wprowadzenie.pdf', 'Kamizelka.pdf', 'Latarnik.pdf']
+    window.mainloop()
+else:
+    arr = [[0, 0.53682293, 0.49240103, 0.49318128, 0.04009207, 0.03515585],
+           [0.53682293, 0, 0.49677289, 0.54755336, 0.01423449, 0.01342816],
+           [0.49240103, 0.49677289, 0, 0.4856281, 0.03298175, 0.0299892],
+           [0.49318128, 0.54755336, 0.4856281, 0, 0.02699985, 0.02418876],
+           [0.04009207, 0.01423449, 0.03298175, 0.02699985, 0, 0.97959166],
+           [0.03515585, 0.01342816, 0.0299892, 0.02418876, 0.97959166, 0]]
+    filenames = ['IO Analiza biznesowa i systemowa.pdf', 'IO Obszary działań IO.pdf', 'IO Projektowanie.pdf',
+                 'IO Wprowadzenie.pdf', 'Kamizelka.pdf', 'Latarnik.pdf']
 
-GraphDrawer().draw2(arr, filenames)
+    GraphDrawer().draw2(arr, filenames)
