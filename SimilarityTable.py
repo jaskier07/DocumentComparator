@@ -21,7 +21,7 @@ class SimilarityTable:
                 tree.insert('', 'end', values=(filenames[row], filenames[col], similarity))
 
         for col in columns:
-            tree.heading(col, text=col, command=lambda: self.sort_by_column(tree, col, False))
+            tree.heading(col, text=col, command=lambda: self.sort_by_column(tree, col, True))
 
     def sort_by_column(self, tv, col, reverse):
         l = [(tv.set(k, col), k) for k in tv.get_children('')]
