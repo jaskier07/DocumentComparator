@@ -5,12 +5,15 @@ from tkinter import font
 from tkinter import messagebox
 from tkinter.ttk import *
 
+import nltk
+
 from SimilarityTable import SimilarityTable
 from DocumentComparator import DocumentComparator
 from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
+from stempel import StempelStemmer
 
-
+'''
 def hide_components():
     bar['value'] = 0
     bar.grid_remove()
@@ -53,11 +56,11 @@ def browse_files():
         hide_components()
 
         if len(pdf_names) < 2:
-            messagebox.showerror('Wrong directory', 'Select two or more PDF files.')
+            messagebox.showerror('File selection', 'Select two or more PDF files.')
         else:
             listbox.delete(0, END)
-            for (i, elem) in enumerate(pdf_names):
-                listbox.insert(i, elem)
+            for (index, elem) in enumerate(pdf_names):
+                listbox.insert(index, elem)
 
             label_header_info['text'] = 'PDF selection:'
             button_compare_documents = Button(text="Compare documents",
@@ -70,6 +73,8 @@ def configure_styles():
     default_font.configure(size=12)
     window.option_add("*Font", default_font)
 
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 window = Tk()
 window.title("Document comparator")
@@ -109,3 +114,15 @@ button_browse = Button(text="Select files", command=browse_files)
 button_browse.grid(row=1, column=0, sticky="S", padx=(5, 5))
 
 window.mainloop()
+'''
+
+arr = [[0, 0.53682293, 0.49240103, 0.49318128, 0.04009207, 0.03515585],
+       [0.53682293, 0, 0.49677289, 0.54755336, 0.01423449, 0.01342816],
+       [0.49240103, 0.49677289, 0, 0.4856281, 0.03298175, 0.0299892],
+       [0.49318128, 0.54755336, 0.4856281, 0, 0.02699985, 0.02418876],
+       [0.04009207, 0.01423449, 0.03298175, 0.02699985, 0, 0.97959166],
+       [0.03515585, 0.01342816, 0.0299892, 0.02418876, 0.97959166, 0]]
+filenames = ['IO Analiza biznesowa i systemowa.pdf', 'IO Obszary działań IO.pdf', 'IO Projektowanie.pdf',
+             'IO Wprowadzenie.pdf', 'Kamizelka.pdf', 'Latarnik.pdf']
+
+GraphDrawer().draw2(arr, filenames)
