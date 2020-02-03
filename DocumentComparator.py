@@ -4,7 +4,7 @@ from tkinter.ttk import *
 
 import nltk
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from IOUtils import IOUtils
@@ -41,13 +41,20 @@ class DocumentComparator:
             self.__update_bar(bar)
             corpus_preproc.append(preprocessed_text)
 
-        vect = TfidfVectorizer(strip_accents='unicode')
-        tfidf = vect.fit_transform(corpus_preproc)
-        arr = cosine_similarity(tfidf)
+        tfidf_vect = TfidfVectorizer(strip_accents='unicode')
+        tfidf = tfidf_vect.fit_transform(corpus_preproc)
+        tfidf_arr = cosine_similarity(tfidf)
+        np.fill_diagonal(tfidf_arr, np.nan)
 
-        np.fill_diagonal(arr, np.nan)
+        count_vect = CountVectorizer()
+        word_count = count_vect.fit_transform(corpus_preproc)
+        count_arr = cosine_similarity(word_count)
+        np.fill_diagonal(count_arr, np.nan)
 
-        return arr
+        return self.__get_weighted_arr(tfidf_arr, count_arr)
+
+    def __get_weighted_arr(self, first_arr, second_arr, first_weight=0.7, second_weight=0.3):
+        return first_arr*first_weight + second_arr*second_weight
 
     def __update_bar(self, bar: Progressbar):
         bar['value'] = bar['value'] + 10
@@ -95,7 +102,6 @@ class DocumentComparator:
         words = self.__token.tokenize(text)
         punctuation_filtered = []
         regex = re.compile('[%s]' % re.escape(self.__PUNCTUATION))
-        # FIXME Linia poniżej jest nieużywana, ma zostać?
         remove_punctuation = text.translate(str.maketrans('', '', self.__PUNCTUATION))
         for w in words:
             punctuation_filtered.append(regex.sub('', w))
