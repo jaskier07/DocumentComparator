@@ -1,3 +1,5 @@
+from threading import Thread
+
 import matplotlib.pyplot as plt
 import networkx as nx
 
@@ -59,7 +61,7 @@ class GraphDrawer:
         screen_size = self.__get_screen_size()
         filenames = self.__prepare_file_names(filenames)
 
-        app = dash.Dash(__name__)
+        app = dash.Dash('foo')
         app.layout = html.Div([
             self.__get_cytoscape(arr, filenames, screen_size),
             html.P(id='cytoscape-tapNodeData-output'),
@@ -70,7 +72,8 @@ class GraphDrawer:
 
         self.__define_callbacks(app)
 
-        app.run_server(debug=True)
+        thread = Thread(target=app.run_server)
+        thread.start()
 
     def __define_callbacks(self, app):
         @app.callback(Output('cytoscape-tapNodeData-output', 'children'),

@@ -13,7 +13,7 @@ from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
 from stempel import StempelStemmer
 
-DEMO_MODE = True
+DEMO_MODE = False
 
 def hide_components():
     bar['value'] = 0
@@ -45,8 +45,9 @@ def compare_documents(paths_to_pdf_files, pdf_names):
                                           command=partial(show_similarity_table, arr, pdf_names))
     button_show_similarity_table.grid(row=5, column=0)
 
+    # TODO create thread here and make sure that previous has ended work
     drawer = GraphDrawer()
-    drawer.draw(arr, pdf_names)
+    drawer.draw2(arr, pdf_names)
 
 
 def browse_files():
