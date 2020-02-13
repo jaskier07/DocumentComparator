@@ -13,7 +13,7 @@ from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
 from stempel import StempelStemmer
 
-DEMO_MODE = False
+DEMO_MODE = True
 
 def hide_components():
     bar['value'] = 0
@@ -128,4 +128,4 @@ else:
     filenames = ['IO Analiza biznesowa i systemowa.pdf', 'IO Obszary działań IO.pdf', 'IO Projektowanie.pdf',
                  'IO Wprowadzenie.pdf', 'Kamizelka.pdf', 'Latarnik.pdf']
 
-    GraphDrawer().draw2(arr, filenames)
+    GraphDrawer().draw(arr, filenames)

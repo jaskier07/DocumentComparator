@@ -1,18 +1,10 @@
-from threading import Thread
-
-import matplotlib.pyplot as plt
-import networkx as nx
+import ctypes
 
 import dash
 import dash_cytoscape as cyto
-import plotly
-import plotly.graph_objects as go
-import ctypes
-
-import networkx as nx
 import dash_html_components as html
 from dash.dependencies import Output, Input
-from flask import Flask, render_template, json
+from dash_cytoscape import Cytoscape
 
 
 class GraphDrawer:
@@ -20,33 +12,72 @@ class GraphDrawer:
     __EDGE_WEIGHT_PRECISION = 4
     __MAX_NODE_NAME_LENGTH = 25
 
-    def draw(self, array, file_names):
-        g = self.__get_graph(array, self.__prepare_file_names(file_names))
+    cytoscape: Cytoscape
+    similarity_arr: None
+    screen_size: None
 
-        plt.figure(figsize=(10, 10))
+    __stylesheet = [
+        {
+            'selector': 'node',
+            'style': {
+                'width': '7px',
+                'height': '7px',
+                'color': 'black',
+                'label': 'data(label)',
+                'font-size': '2px',
+                'text-outline-width': '0.3px',
+                'text-outline-color': 'white'
+            }
+        },
+        {
+            'selector': 'edge',
+            'style': {
+                'font-size': '2px',
+                'label': 'data(weight)',
+                'line-color': 'data(rgb)',
+                'line-style': 'solid',
+                'width': '0.5px',
+                'text-outline-width': '0.3px',
+                'text-outline-color': 'white',
+                'text-opacity': '1.0'
+            }
+        },
+        # {
+        #     'selector': '[weight <= 0.3]',
+        #     'style': {
+        #         'line-style': 'dotted',
+        #     }
+        #
+        # },
+        # {
+        #     'selector': '[weight <= 0.1]',
+        #     'style': {
+        #         'display': 'none'
+        #     }
+        # }
+    ]
 
-        pos = nx.spring_layout(g)
-        edges = g.edges()
-        weights = [g[u][v]['weight'] * 10 for u, v in edges]
+    def __init__(self) -> None:
+        self.screen_size = self.__get_screen_size()
 
-        nx.draw(g, pos, with_labels=True, node_size=1200, node_color="skyblue", node_shape="h", font_size=11, alpha=0.8,
-                width=weights)
+    def draw(self, arr, filenames):
+        self.similarity_arr = arr
+        self.cytoscape = self.__get_cytoscape(arr, self.__prepare_file_names(filenames), self.screen_size)
 
-        weights = [round(g[u][v]['weight'], self.__EDGE_WEIGHT_PRECISION) for u, v in edges]
-        edges = dict(zip(edges, weights))
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            self.cytoscape,
+            html.P(id='cytoscape-tapNodeData-output'),
+            html.P(id='cytoscape-tapEdgeData-output'),
+            html.P(id='cytoscape-broker')
+        ])
 
-        nx.draw_networkx_edge_labels(g, pos, edge_labels=edges)
+        self.__define_callbacks(app)
+        app.run_server(debug=True)
 
-        plt.show()
+        # thread = Thread(target=app.run_server)
 
-    def __get_graph(self, array, titles):
-        g = nx.Graph()
-        for i in range(len(array[0])):
-            for j in range(i + 1, len(array[0])):
-                edge_weight = array[i][j]
-                if edge_weight > self.__MIN_EDGE_WEIGHT:
-                    g.add_edge(titles[i], titles[j], weight=edge_weight)
-        return g
+    # thread.start()
 
     def __prepare_file_names(self, file_names):
         short_file_names = []
@@ -57,50 +88,55 @@ class GraphDrawer:
 
         return short_file_names
 
-    def draw2(self, arr, filenames):
-        screen_size = self.__get_screen_size()
-        filenames = self.__prepare_file_names(filenames)
-
-        app = dash.Dash('foo')
-        app.layout = html.Div([
-            self.__get_cytoscape(arr, filenames, screen_size),
-            html.P(id='cytoscape-tapNodeData-output'),
-            html.P(id='cytoscape-tapEdgeData-output'),
-            html.P(id='cytoscape-mouseoverNodeData-output'),
-            html.P(id='cytoscape-mouseoverEdgeData-output')
-        ])
-
-        self.__define_callbacks(app)
-
-        thread = Thread(target=app.run_server)
-        thread.start()
-
     def __define_callbacks(self, app):
-        @app.callback(Output('cytoscape-tapNodeData-output', 'children'),
-                      [Input('container', 'tapNodeData')])
-        def displayTapNodeData(data):
-            if data:
-                print("You recently clicked/tapped the city: " + data['label'])
+        @app.callback(Output('container', 'stylesheet'),
+                      [Input('container', 'tapNodeData'), Input('container', 'elements')])
+        def save_container_elements(selected_node, all_elements):
+            new_styles = [
+                {
+                    'selector': 'edge',
+                    'style': {
+                        'background-color': 'black'
+                    }
+                }
+            ]
 
-        @app.callback(Output('cytoscape-tapEdgeData-output', 'children'),
-                      [Input('container', 'tapEdgeData')])
-        def displayTapEdgeData(data):
-            if data:
-                print("You recently clicked/tapped the edge between " + data['source'].upper() + " and " + data[
-                    'target'].upper())
+            if selected_node and all_elements:
+                for e in all_elements:
+                    element = e.get('data')
+                    id_condition = 'edge[id = "{}"]'.format(element.get('id'))
+                    if element.get('source') == selected_node['id'] or element.get('target') == selected_node['id']:
+                        new_styles.append(
+                            {
+                                'selector': id_condition,
+                                'style': {
+                                    'weight': '1',
+                                    'background-color': 'red',
+                                    'font-size': '2px',
+                                    'label': 'data(weight)',
+                                    'line-color': 'black',
+                                    'line-style': 'solid',
+                                    'width': '0.5px',
+                                    'text-outline-width': '0.3px',
+                                    'text-outline-color': 'white',
+                                    'text-opacity': '1.0',
+                                    'hidden': 'false'
+                                }
+                            }
+                        )
+                    elif element.get('source') is not None:
+                        new_styles.append(
+                            {
+                                'selector': id_condition,
+                                'style': {
+                                    'background-color': 'green',
+                                    'hidden': 'true',
+                                    'width': '0'
+                                }
+                            }
+                        )
 
-        @app.callback(Output('cytoscape-mouseoverNodeData-output', 'children'),
-                      [Input('container', 'mouseoverNodeData')])
-        def displayTapNodeData(data):
-            if data:
-                print("You recently hovered over the city: " + data['label'])
-
-        @app.callback(Output('cytoscape-mouseoverEdgeData-output', 'children'),
-                      [Input('container', 'mouseoverEdgeData')])
-        def displayTapEdgeData(data):
-            if data:
-                print("You recently hovered over the edge between " + data['source'].upper() + " and " + data[
-                    'target'].upper())
+            return self.__stylesheet + new_styles
 
     def __get_cytoscape(self, arr, filenames, screen_size):
         return cyto.Cytoscape(
@@ -113,12 +149,14 @@ class GraphDrawer:
             layout={
                 'name': 'concentric',
             },
-            stylesheet=self.__get_stylesheet()
+            stylesheet=self.__stylesheet
         )
+
 
     def __get_screen_size(self):
         user32 = ctypes.windll.user32
         return user32.GetSystemMetrics(0) - 100, user32.GetSystemMetrics(1) - 100
+
 
     def __get_elements(self, arr, filenames):
         elements = []
@@ -139,48 +177,7 @@ class GraphDrawer:
                                           'label': arr[row][col],
                                           'weight': round(arr[row][col], 2),
                                           'size': 1,
-                                          'rgb': rgb}})
+                                          'rgb': rgb
+                                          }})
 
         return elements
-
-    def __get_stylesheet(self):
-        return [
-            {
-                'selector': 'node',
-                'style': {
-                    'width': '7px',
-                    'height': '7px',
-                    'color': 'black',
-                    'label': 'data(label)',
-                    'font-size': '2px',
-                    'text-outline-width': '0.3px',
-                    'text-outline-color': 'white'
-                }
-            },
-            {
-                'selector': 'edge',
-                'style': {
-                    'font-size': '2px',
-                    'label': 'data(weight)',
-                    'line-color': 'data(rgb)',
-                    'line-style': 'solid',
-                    'width': '0.5px',
-                    'text-outline-width': '0.3px',
-                    'text-outline-color': 'white',
-                    'text-opacity': '1.0'
-                }
-            },
-            {
-                'selector': '[weight <= 0.3]',
-                'style': {
-                    'line-style': 'dotted',
-                }
-
-            },
-            {
-                'selector': '[weight <= 0.04]',
-                'style': {
-                     #'display': 'none'
-                }
-            }
-        ]
