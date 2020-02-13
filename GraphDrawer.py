@@ -41,20 +41,7 @@ class GraphDrawer:
                 'text-outline-color': 'white',
                 'text-opacity': '1.0'
             }
-        },
-        # {
-        #     'selector': '[weight <= 0.3]',
-        #     'style': {
-        #         'line-style': 'dotted',
-        #     }
-        #
-        # },
-        # {
-        #     'selector': '[weight <= 0.1]',
-        #     'style': {
-        #         'display': 'none'
-        #     }
-        # }
+        }
     ]
 
     def __init__(self) -> None:
@@ -110,16 +97,7 @@ class GraphDrawer:
                             {
                                 'selector': id_condition,
                                 'style': {
-                                    'weight': '1',
-                                    'background-color': 'red',
-                                    'font-size': '2px',
-                                    'label': 'data(weight)',
-                                    'line-color': 'black',
-                                    'line-style': 'solid',
                                     'width': '0.5px',
-                                    'text-outline-width': '0.3px',
-                                    'text-outline-color': 'white',
-                                    'text-opacity': '1.0',
                                     'hidden': 'false'
                                 }
                             }
@@ -129,7 +107,6 @@ class GraphDrawer:
                             {
                                 'selector': id_condition,
                                 'style': {
-                                    'background-color': 'green',
                                     'hidden': 'true',
                                     'width': '0'
                                 }
@@ -152,11 +129,10 @@ class GraphDrawer:
             stylesheet=self.__stylesheet
         )
 
-
-    def __get_screen_size(self):
+    @staticmethod
+    def __get_screen_size():
         user32 = ctypes.windll.user32
         return user32.GetSystemMetrics(0) - 100, user32.GetSystemMetrics(1) - 100
-
 
     def __get_elements(self, arr, filenames):
         elements = []
@@ -175,9 +151,13 @@ class GraphDrawer:
                 elements.append({'data': {'source': id_per_filename.get(filenames[row]),
                                           'target': id_per_filename.get(filenames[col]),
                                           'label': arr[row][col],
-                                          'weight': round(arr[row][col], 2),
+                                          'weight': self.get_rounded_weight(arr[row][col]),
                                           'size': 1,
                                           'rgb': rgb
                                           }})
 
         return elements
+
+    @staticmethod
+    def get_rounded_weight(num):
+        return round(num, 2)
