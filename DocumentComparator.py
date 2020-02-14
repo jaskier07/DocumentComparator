@@ -4,7 +4,7 @@ from tkinter.ttk import *
 
 import nltk
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from IOUtils import IOUtils
@@ -17,6 +17,8 @@ class DocumentComparator:
     __bar_incrementation_value: None
 
     def compare_documents(self, paths_to_pdf_files, bar):
+        nltk.download('stopwords')
+        nltk.download('wordnet')
         __bar_incrementation_value = 200.0 / len(paths_to_pdf_files) / self.__BAR_UPDATES
 
         document_names = []
@@ -31,21 +33,35 @@ class DocumentComparator:
         for text in document_contents:
             preprocessed_text = self.__clean_text(text)
             self.__update_bar(bar)
-            preprocessed_text = self.__clean_punctuation(preprocessed_text)
+            preprocessed_text = self.__clean_punct(preprocessed_text)
             self.__update_bar(bar)
             preprocessed_text = self.__stop_words_remove(preprocessed_text)
             self.__update_bar(bar)
-            preprocessed_text = self.__lemmatize_words(preprocessed_text)
+            preprocessed_text = self.__lemitize_words(preprocessed_text)
             self.__update_bar(bar)
             corpus_preproc.append(preprocessed_text)
 
-        vect = TfidfVectorizer(strip_accents='unicode')
-        tfidf = vect.fit_transform(corpus_preproc)
-        arr = cosine_similarity(tfidf)
+        tfidf = self.__get_tfidf_vect_result(corpus_preproc)
+        count = self.__get_count_vect_result(corpus_preproc)
 
-        np.fill_diagonal(arr, np.nan)
+        return self.__get_weighted_arr(tfidf, count)
 
-        return arr
+    def __get_tfidf_vect_result(self, corpus):
+        vectorizer = TfidfVectorizer(strip_accents='unicode')
+        tfidf = vectorizer.fit_transform(corpus)
+        sim_array = cosine_similarity(tfidf)
+        np.fill_diagonal(sim_array, np.nan)
+        return sim_array
+
+    def __get_count_vect_result(self, corpus):
+        vectorizer = CountVectorizer()
+        count = vectorizer.fit_transform(corpus)
+        sim_array = cosine_similarity(count)
+        np.fill_diagonal(sim_array, np.nan)
+        return sim_array
+
+    def __get_weighted_arr(self, first_arr, second_arr, first_weight=0.7, second_weight=0.3):
+        return first_arr*first_weight + second_arr*second_weight
 
     def __update_bar(self, bar: Progressbar):
         bar['value'] = bar['value'] + 10
@@ -54,7 +70,7 @@ class DocumentComparator:
     def __clean_text(self, text):
         text = text.lower()
         text = re.sub(r"what's", "what is ", text)
-        text = re.sub(r"\'s", "is ", text)
+        text = re.sub(r"\'s", " ", text)
         text = re.sub(r"\'ve", " have ", text)
         text = re.sub(r"can't", "can not ", text)
         text = re.sub(r"n't", " not ", text)
@@ -65,11 +81,11 @@ class DocumentComparator:
         text = re.sub(r"\'scuse", " excuse ", text)
         text = re.sub(r"\'\n", " ", text)
         text = re.sub(r"\'\xa0", " ", text)
-        text = re.sub('\\s+', ' ', text)
+        text = re.sub('\s+', ' ', text)
         text = text.strip(' ')
         return text
 
-    def __lemmatize_words(self, text):
+    def __lemitize_words(self, text):
         words = self.__token.tokenize(text)
         lemma = nltk.stem.WordNetLemmatizer()
 
@@ -85,15 +101,16 @@ class DocumentComparator:
         filtered = [w for w in words if not w in stop_words]
         return ' '.join(map(str, filtered))
 
-    def __remove_empty_elements_from_list(self, mylist):
+    def __strip_list_noempty(self, mylist):
         new_list = (item.strip() if hasattr(item, 'strip') else item for item in mylist)
         return [item for item in new_list if item != '']
 
-    def __clean_punctuation(self, text):
+    def __clean_punct(self, text):
         words = self.__token.tokenize(text)
         punctuation_filtered = []
         regex = re.compile('[%s]' % re.escape(self.__PUNCTUATION))
+        remove_punctuation = text.translate(str.maketrans('', '', self.__PUNCTUATION))
         for w in words:
             punctuation_filtered.append(regex.sub('', w))
-        filtered_list = self.__remove_empty_elements_from_list(punctuation_filtered)
+        filtered_list = self.__strip_list_noempty(punctuation_filtered)
         return ' '.join(map(str, filtered_list))
