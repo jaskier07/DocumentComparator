@@ -41,17 +41,24 @@ class DocumentComparator:
             self.__update_bar(bar)
             corpus_preproc.append(preprocessed_text)
 
-        tfidf_vect = TfidfVectorizer(strip_accents='unicode')
-        tfidf = tfidf_vect.fit_transform(corpus_preproc)
-        tfidf_arr = cosine_similarity(tfidf)
-        np.fill_diagonal(tfidf_arr, np.nan)
+        tfidf = self.__get_tfidf_vect_result(corpus_preproc)
+        count = self.__get_count_vect_result(corpus_preproc)
 
-        count_vect = CountVectorizer()
-        word_count = count_vect.fit_transform(corpus_preproc)
-        count_arr = cosine_similarity(word_count)
-        np.fill_diagonal(count_arr, np.nan)
+        return self.__get_weighted_arr(tfidf, count)
 
-        return self.__get_weighted_arr(tfidf_arr, count_arr)
+    def __get_tfidf_vect_result(self, corpus):
+        vectorizer = TfidfVectorizer(strip_accents='unicode')
+        tfidf = vectorizer.fit_transform(corpus)
+        sim_array = cosine_similarity(tfidf)
+        np.fill_diagonal(sim_array, np.nan)
+        return sim_array
+
+    def __get_count_vect_result(self, corpus):
+        vectorizer = CountVectorizer()
+        count = vectorizer.fit_transform(corpus)
+        sim_array = cosine_similarity(count)
+        np.fill_diagonal(sim_array, np.nan)
+        return sim_array
 
     def __get_weighted_arr(self, first_arr, second_arr, first_weight=0.7, second_weight=0.3):
         return first_arr*first_weight + second_arr*second_weight
