@@ -6,6 +6,7 @@ import nltk
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from pathlib import Path
 
 from IOUtils import IOUtils
 
@@ -13,6 +14,7 @@ from IOUtils import IOUtils
 class DocumentComparator:
     __PUNCTUATION = '!"#$%&\'()*+,./:;<=>?@[\\]^_`{|}~'
     __BAR_UPDATES = 5
+    __CACHE_DIR_NAME = 'cache'
     __token = nltk.tokenize.ToktokTokenizer()
     __bar_incrementation_value: None
 
@@ -21,25 +23,44 @@ class DocumentComparator:
         nltk.download('wordnet')
         __bar_incrementation_value = 200.0 / len(paths_to_pdf_files) / self.__BAR_UPDATES
 
-        document_names = []
-        document_contents = []
+        #document_names = []
+        #document_contents = []
+        documents = {}
         for path in paths_to_pdf_files:
-            document_names.append(os.path.basename(path))
-            document_contents.append(IOUtils.pdf_to_text(path))
+            document_name = os.path.basename(path)
+            #document_names.append(document_name)
+            # if document_names in cached files then skip adding contents
+            document_content = IOUtils.pdf_to_text(path)
+            #document_contents.append(document_content)
+            documents[document_name] = document_content
             self.__update_bar(bar)
+
+        # Create a directory if it doesn't already exist
+        cache_dir = Path(self.__CACHE_DIR_NAME)
+        if not cache_dir.exists():
+            Path(cache_dir).mkdir(parents=True)
 
         self.__update_bar(bar)
         corpus_preproc = []
-        for text in document_contents:
-            preprocessed_text = self.__clean_text(text)
-            self.__update_bar(bar)
-            preprocessed_text = self.__clean_punct(preprocessed_text)
-            self.__update_bar(bar)
-            preprocessed_text = self.__stop_words_remove(preprocessed_text)
-            self.__update_bar(bar)
-            preprocessed_text = self.__lemitize_words(preprocessed_text)
-            self.__update_bar(bar)
-            corpus_preproc.append(preprocessed_text)
+        # for text in document_contents:
+        for doc_name, doc_content in documents.items():
+            doc_name_without_file_ext = doc_name[:-4]
+            doc_file = Path(self.__CACHE_DIR_NAME + '/' + doc_name_without_file_ext)
+            if doc_file.exists():  # TODO: more sophisticated way of checking if a file has been cached
+                cached_content = doc_file.read_text()
+                corpus_preproc.append(cached_content)
+                self.__update_bar(bar, 40)  # TODO: updated value
+            else:
+                preprocessed_text = self.__clean_text(doc_content)
+                self.__update_bar(bar)
+                preprocessed_text = self.__clean_punct(preprocessed_text)
+                self.__update_bar(bar)
+                preprocessed_text = self.__stop_words_remove(preprocessed_text)
+                self.__update_bar(bar)
+                preprocessed_text = self.__lemitize_words(preprocessed_text)
+                self.__update_bar(bar)
+                corpus_preproc.append(preprocessed_text)
+                doc_file.write_text(preprocessed_text)
 
         tfidf = self.__get_tfidf_vect_result(corpus_preproc)
         count = self.__get_count_vect_result(corpus_preproc)
@@ -63,8 +84,8 @@ class DocumentComparator:
     def __get_weighted_arr(self, first_arr, second_arr, first_weight=0.7, second_weight=0.3):
         return first_arr*first_weight + second_arr*second_weight
 
-    def __update_bar(self, bar: Progressbar):
-        bar['value'] = bar['value'] + 10
+    def __update_bar(self, bar: Progressbar, value_added = 10):
+        bar['value'] = bar['value'] + value_added
         bar.update()
 
     def __clean_text(self, text):

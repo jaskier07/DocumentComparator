@@ -11,9 +11,8 @@ from SimilarityTable import SimilarityTable
 from DocumentComparator import DocumentComparator
 from GraphDrawer import GraphDrawer
 from IOUtils import IOUtils
-from stempel import StempelStemmer
 
-DEMO_MODE = True
+DEMO_MODE = False
 
 def hide_components():
     bar['value'] = 0
