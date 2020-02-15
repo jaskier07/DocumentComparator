@@ -7,9 +7,6 @@ import dash_html_components as html
 from dash.dependencies import Output, Input
 from dash_cytoscape import Cytoscape
 
-from Application import DEMO_MODE
-
-
 class GraphDrawer:
     __MIN_EDGE_WEIGHT = 0.04
     __EDGE_WEIGHT_PRECISION = 4
@@ -18,6 +15,7 @@ class GraphDrawer:
     cytoscape: Cytoscape
     similarity_arr: None
     screen_size: None
+    demo_mode: bool
 
     __stylesheet = [
         {
@@ -47,8 +45,9 @@ class GraphDrawer:
         }
     ]
 
-    def __init__(self) -> None:
+    def __init__(self, demo_mode: bool) -> None:
         self.screen_size = self.__get_screen_size()
+        self.demo_mode = demo_mode
 
     def draw(self, arr, filenames):
         self.similarity_arr = arr
@@ -64,7 +63,7 @@ class GraphDrawer:
 
         self.__define_callbacks(app)
         # TODO Moving thread creation to method in Application.py
-        if DEMO_MODE:
+        if self.demo_mode:
             app.run_server(debug=True)
         else:
             thread = Thread(target=app.run_server)

@@ -5,14 +5,14 @@ from tkinter import font
 from tkinter import messagebox
 from tkinter.ttk import *
 
+from SimilarityTable import SimilarityTable
+from GraphDrawer import GraphDrawer
+from DocumentComparator import DocumentComparator
+from IOUtils import IOUtils
 import nltk
 
-from SimilarityTable import SimilarityTable
-from DocumentComparator import DocumentComparator
-from GraphDrawer import GraphDrawer
-from IOUtils import IOUtils
-
 DEMO_MODE = False
+
 
 def hide_components():
     bar['value'] = 0
@@ -47,7 +47,7 @@ def compare_documents(paths_to_pdf_files, pdf_names):
     button_show_similarity_table.grid(row=5, column=0)
 
     # TODO create thread here and make sure that previous has ended work
-    drawer = GraphDrawer()
+    drawer = GraphDrawer(DEMO_MODE)
     drawer.draw(arr, pdf_names)
 
 
