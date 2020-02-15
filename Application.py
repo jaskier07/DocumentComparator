@@ -6,7 +6,7 @@ from tkinter import messagebox
 from tkinter.ttk import *
 
 from SimilarityTable import SimilarityTable
-from GraphDrawer import GraphDrawer
+from drawing.GraphDrawer import GraphDrawer
 from DocumentComparator import DocumentComparator
 from IOUtils import IOUtils
 import nltk
@@ -131,4 +131,4 @@ else:
     filenames = ['IO Analiza biznesowa i systemowa.pdf', 'IO Obszary działań IO.pdf', 'IO Projektowanie.pdf',
                  'IO Wprowadzenie.pdf', 'Kamizelka.pdf', 'Latarnik.pdf']
 
-    GraphDrawer().draw(arr, filenames)
+    GraphDrawer(demo_mode=DEMO_MODE).draw(arr, filenames)
