@@ -1,10 +1,13 @@
 import ctypes
+from threading import Thread
 
 import dash
 import dash_cytoscape as cyto
 import dash_html_components as html
 from dash.dependencies import Output, Input
 from dash_cytoscape import Cytoscape
+
+from Application import DEMO_MODE
 
 
 class GraphDrawer:
@@ -60,11 +63,12 @@ class GraphDrawer:
         ])
 
         self.__define_callbacks(app)
-        app.run_server(debug=True)
-
-        # thread = Thread(target=app.run_server)
-
-    # thread.start()
+        # TODO Moving thread creation to method in Application.py
+        if DEMO_MODE:
+            app.run_server(debug=True)
+        else:
+            thread = Thread(target=app.run_server)
+            thread.start()
 
     def __prepare_file_names(self, file_names):
         short_file_names = []
