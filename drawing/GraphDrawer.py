@@ -16,6 +16,7 @@ class GraphDrawer:
     __EDGE_WEIGHT_PRECISION = 4
     __MAX_NODE_NAME_LENGTH = 25
     __DEFAULT_DROPDOWN_VALUE = '-1'
+    __DEFAULT_LAYOUT = 'concentric'
 
     filename_per_node_id = dict()
     similarity_arr: None
@@ -36,16 +37,17 @@ class GraphDrawer:
         self.filename_per_node_id = filename_per_node
 
         app.layout = html.Div([
-            self.__get_cytoscape(elements),
+            self.__get_dropdown_with_view(),
             self.__get_dropdown_with_documents(self.filename_per_node_id),
+            html.P(id='extent'),
+            self.__get_cytoscape(elements),
             html.P(id='cytoscape-tapNodeData-output'),
             html.P(id='cytoscape-tapEdgeData-output'),
-            html.P(id='cytoscape-broker'),
-            self.__get_dropdown_with_view()
+            html.P(id='cytoscape-broker')
         ])
 
-        self.callbackProvider = CallbackProvider(self.__DEFAULT_DROPDOWN_VALUE, nodes_per_id)
-        self.callbackProvider.define_callbacks(app)
+        callback_provider = CallbackProvider(self.__DEFAULT_DROPDOWN_VALUE, nodes_per_id)
+        callback_provider.define_callbacks(app)
         # TODO Moving thread creation to method in Application.py
         if self.demo_mode:
             app.run_server(debug=True)
@@ -71,17 +73,17 @@ class GraphDrawer:
                 'height': self.screen_size[1],
             },
             layout={
-                'name': 'concentric',
+                'name': self.__DEFAULT_LAYOUT,
             },
-            stylesheet=self.stylesheetProvider.get_stylesheet(),
+            stylesheet=self.stylesheetProvider.get_stylesheet(self.__DEFAULT_LAYOUT),
             maxZoom=10,
-            minZoom=1
+            minZoom=0.5
         )
 
     @staticmethod
     def __get_screen_size():
         user32 = ctypes.windll.user32
-        return user32.GetSystemMetrics(0) - 100, user32.GetSystemMetrics(1) - 100
+        return user32.GetSystemMetrics(0) - 100, user32.GetSystemMetrics(1) - 180
 
     def __get_elements_and_filename_dict(self, arr, filenames):
         elements = []

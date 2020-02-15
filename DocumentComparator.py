@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from pathlib import Path
 from hashlib import sha256
 
-from IOUtils import IOUtils
+from utils.IOUtils import IOUtils
 
 
 class DocumentComparator:
@@ -85,8 +85,9 @@ class DocumentComparator:
         return first_arr * first_weight + second_arr * second_weight
 
     def __update_bar(self, bar: Progressbar, steps_added=1):
-        bar['value'] = bar['value'] + self.__bar_incrementation_value * steps_added
-        bar.update()
+        if bar is not None:
+            bar['value'] = bar['value'] + self.__bar_incrementation_value * steps_added
+            bar.update()
 
     def __clean_text(self, text):
         text = text.lower()

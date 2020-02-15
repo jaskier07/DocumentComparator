@@ -1,3 +1,4 @@
+import os
 from functools import partial
 from tkinter import *
 from tkinter import filedialog
@@ -8,7 +9,7 @@ from tkinter.ttk import *
 from SimilarityTable import SimilarityTable
 from drawing.GraphDrawer import GraphDrawer
 from DocumentComparator import DocumentComparator
-from IOUtils import IOUtils
+from utils.IOUtils import IOUtils
 import nltk
 
 DEMO_MODE = False

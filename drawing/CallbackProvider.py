@@ -17,8 +17,9 @@ class CallbackProvider:
     def define_callbacks(self, app):
         @app.callback(Output('container', 'stylesheet'),
                       [Input('container', 'tapNodeData'),
-                       Input('container', 'elements')])
-        def save_container_elements(selected_node, all_elements):
+                       Input('container', 'elements'),
+                       Input('container', 'layout')])
+        def save_container_elements(selected_node, all_elements, layout):
             new_styles = [
                 {
                     'selector': 'edge',
@@ -28,7 +29,7 @@ class CallbackProvider:
                 }
             ]
             if selected_node is None:
-                return self.stylesheetProvider.get_stylesheet()
+                return self.stylesheetProvider.get_stylesheet(layout['name'])
 
             node_id = str(selected_node['id'])
             if node_id is not None and all_elements:
@@ -40,7 +41,7 @@ class CallbackProvider:
                             {
                                 'selector': id_condition_edge,
                                 'style': {
-                                    'width': '0.5px',
+                                    'width': self.stylesheetProvider.get_edge_width(layout['name']),
                                     'hidden': 'false'
                                 }
                             }
@@ -72,7 +73,7 @@ class CallbackProvider:
                             }
                         })
 
-            return self.stylesheetProvider.get_stylesheet() + new_styles
+            return self.stylesheetProvider.get_stylesheet(layout['name']) + new_styles
 
         @app.callback(Output('container', 'layout'), [Input('dropdown-view', 'value')])
         def update_layout(layout):
