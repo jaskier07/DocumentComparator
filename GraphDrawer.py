@@ -6,6 +6,7 @@ import dash_cytoscape as cyto
 import plotly
 import plotly.graph_objects as go
 import ctypes
+import webbrowser
 
 import networkx as nx
 import dash_html_components as html
@@ -71,6 +72,7 @@ class GraphDrawer:
         self.__define_callbacks(app)
 
         app.run_server(debug=True)
+        webbrowser.open_new('http://127.0.0.1:8050/')
 
     def __define_callbacks(self, app):
         @app.callback(Output('cytoscape-tapNodeData-output', 'children'),
