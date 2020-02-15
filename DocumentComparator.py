@@ -17,12 +17,12 @@ class DocumentComparator:
     __BAR_UPDATES = 5
     __CACHE_DIR_NAME = 'cache'
     __token = nltk.tokenize.ToktokTokenizer()
-    __bar_incrementation_value: None
+    __bar_incrementation_value = None
 
     def compare_documents(self, paths_to_pdf_files, bar):
         nltk.download('stopwords')
         nltk.download('wordnet')
-        __bar_incrementation_value = 200.0 / len(paths_to_pdf_files) / self.__BAR_UPDATES
+        self.__bar_incrementation_value = 100.0 / len(paths_to_pdf_files) / self.__BAR_UPDATES
 
         documents = {}
         documents_sizes = {}
@@ -31,7 +31,7 @@ class DocumentComparator:
             document_file_size = os.path.getsize(path)
             doc_file = self.__get_file_path(document_name, document_file_size)
             document_content = ''
-            if not doc_file.exists():  # TODO: more sophisticated way of checking if a file has been cached
+            if not doc_file.exists():
                 document_content = IOUtils.pdf_to_text(path)
             documents[document_name] = document_content
             documents_sizes[document_name] = document_file_size
@@ -49,7 +49,7 @@ class DocumentComparator:
             if len(doc_content) == 0:
                 cached_content = doc_file.read_text()
                 corpus_preproc.append(cached_content)
-                self.__update_bar(bar, 40)  # TODO: updated value
+                self.__update_bar(bar, steps_added=4)
             else:
                 preprocessed_text = self.__clean_text(doc_content)
                 self.__update_bar(bar)
@@ -84,8 +84,8 @@ class DocumentComparator:
     def __get_weighted_arr(self, first_arr, second_arr, first_weight=0.7, second_weight=0.3):
         return first_arr * first_weight + second_arr * second_weight
 
-    def __update_bar(self, bar: Progressbar, value_added=10):
-        bar['value'] = bar['value'] + value_added
+    def __update_bar(self, bar: Progressbar, steps_added=1):
+        bar['value'] = bar['value'] + self.__bar_incrementation_value * steps_added
         bar.update()
 
     def __clean_text(self, text):
