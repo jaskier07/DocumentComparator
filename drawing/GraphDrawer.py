@@ -1,4 +1,5 @@
 import ctypes
+import webbrowser
 from threading import Thread
 
 import dash
@@ -50,9 +51,11 @@ class GraphDrawer:
         callback_provider.define_callbacks(app)
         # TODO Moving thread creation to method in Application.py
         if self.demo_mode:
+            webbrowser.open_new('http://127.0.0.1:8050/')
             app.run_server(debug=True)
         else:
             thread = Thread(target=app.run_server)
+            webbrowser.open_new('http://127.0.0.1:8050/')
             thread.start()
 
     def __prepare_file_names(self, file_names):
