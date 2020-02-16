@@ -1,3 +1,4 @@
+import os
 from functools import partial
 from tkinter import *
 from tkinter import filedialog
@@ -5,19 +6,21 @@ from tkinter import font
 from tkinter import messagebox
 from tkinter.ttk import *
 
+from SimilarityTable import SimilarityTable
+from drawing.GraphDrawer import GraphDrawer
+from DocumentComparator import DocumentComparator
+from utils.IOUtils import IOUtils
 import nltk
 
-from SimilarityTable import SimilarityTable
-from DocumentComparator import DocumentComparator
-from GraphDrawer import GraphDrawer
-from IOUtils import IOUtils
-
 DEMO_MODE = False
+
 
 def hide_components():
     bar['value'] = 0
     bar.grid_remove()
     bar.update()
+
+    button_show_similarity_table.grid_remove()
 
     label_info_progressbar['text'] = ''
 
@@ -40,11 +43,12 @@ def compare_documents(paths_to_pdf_files, pdf_names):
     label_info_progressbar['text'] = 'Comparing completed.'
     label_info_progressbar.update()
 
-    button_show_similarity_table = Button(text='Show similarity table',
-                                          command=partial(show_similarity_table, arr, pdf_names))
+    button_show_similarity_table.configure(text='Show similarity table',
+                                           command=partial(show_similarity_table, arr, pdf_names))
     button_show_similarity_table.grid(row=5, column=0)
 
-    drawer = GraphDrawer()
+    # TODO create thread here and make sure that previous has ended work
+    drawer = GraphDrawer(DEMO_MODE)
     drawer.draw(arr, pdf_names)
 
 
@@ -112,6 +116,8 @@ if not DEMO_MODE:
 
     bar = Progressbar(window, length=200)
 
+    button_show_similarity_table = Button()
+
     button_browse = Button(text="Select files", command=browse_files)
     button_browse.grid(row=1, column=0, sticky="S", padx=(5, 5))
 
@@ -126,4 +132,4 @@ else:
     filenames = ['IO Analiza biznesowa i systemowa.pdf', 'IO Obszary działań IO.pdf', 'IO Projektowanie.pdf',
                  'IO Wprowadzenie.pdf', 'Kamizelka.pdf', 'Latarnik.pdf']
 
-    GraphDrawer().draw2(arr, filenames)
+    GraphDrawer(demo_mode=DEMO_MODE).draw(arr, filenames)

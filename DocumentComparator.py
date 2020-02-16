@@ -7,8 +7,9 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from pathlib import Path
+from hashlib import sha256
 
-from IOUtils import IOUtils
+from utils.IOUtils import IOUtils
 
 
 class DocumentComparator:
@@ -16,23 +17,24 @@ class DocumentComparator:
     __BAR_UPDATES = 5
     __CACHE_DIR_NAME = 'cache'
     __token = nltk.tokenize.ToktokTokenizer()
-    __bar_incrementation_value: None
+    __bar_incrementation_value = None
 
     def compare_documents(self, paths_to_pdf_files, bar):
         nltk.download('stopwords')
         nltk.download('wordnet')
-        __bar_incrementation_value = 200.0 / len(paths_to_pdf_files) / self.__BAR_UPDATES
+        self.__bar_incrementation_value = 100.0 / len(paths_to_pdf_files) / self.__BAR_UPDATES
 
-        #document_names = []
-        #document_contents = []
         documents = {}
+        documents_sizes = {}
         for path in paths_to_pdf_files:
             document_name = os.path.basename(path)
-            #document_names.append(document_name)
-            # if document_names in cached files then skip adding contents
-            document_content = IOUtils.pdf_to_text(path)
-            #document_contents.append(document_content)
+            document_file_size = os.path.getsize(path)
+            doc_file = self.__get_file_path(document_name, document_file_size)
+            document_content = ''
+            if not doc_file.exists():
+                document_content = IOUtils.pdf_to_text(path)
             documents[document_name] = document_content
+            documents_sizes[document_name] = document_file_size
             self.__update_bar(bar)
 
         # Create a directory if it doesn't already exist
@@ -42,14 +44,12 @@ class DocumentComparator:
 
         self.__update_bar(bar)
         corpus_preproc = []
-        # for text in document_contents:
         for doc_name, doc_content in documents.items():
-            doc_name_without_file_ext = doc_name[:-4]
-            doc_file = Path(self.__CACHE_DIR_NAME + '/' + doc_name_without_file_ext)
-            if doc_file.exists():  # TODO: more sophisticated way of checking if a file has been cached
+            doc_file = self.__get_file_path(doc_name, documents_sizes[doc_name])
+            if len(doc_content) == 0:
                 cached_content = doc_file.read_text()
                 corpus_preproc.append(cached_content)
-                self.__update_bar(bar, 40)  # TODO: updated value
+                self.__update_bar(bar, steps_added=4)
             else:
                 preprocessed_text = self.__clean_text(doc_content)
                 self.__update_bar(bar)
@@ -60,7 +60,7 @@ class DocumentComparator:
                 preprocessed_text = self.__lemitize_words(preprocessed_text)
                 self.__update_bar(bar)
                 corpus_preproc.append(preprocessed_text)
-                doc_file.write_text(preprocessed_text)
+                doc_file.write_text(preprocessed_text, errors='xmlcharrefreplace')
 
         tfidf = self.__get_tfidf_vect_result(corpus_preproc)
         count = self.__get_count_vect_result(corpus_preproc)
@@ -82,11 +82,12 @@ class DocumentComparator:
         return sim_array
 
     def __get_weighted_arr(self, first_arr, second_arr, first_weight=0.7, second_weight=0.3):
-        return first_arr*first_weight + second_arr*second_weight
+        return first_arr * first_weight + second_arr * second_weight
 
-    def __update_bar(self, bar: Progressbar, value_added = 10):
-        bar['value'] = bar['value'] + value_added
-        bar.update()
+    def __update_bar(self, bar: Progressbar, steps_added=1):
+        if bar is not None:
+            bar['value'] = bar['value'] + self.__bar_incrementation_value * steps_added
+            bar.update()
 
     def __clean_text(self, text):
         text = text.lower()
@@ -102,6 +103,7 @@ class DocumentComparator:
         text = re.sub(r"\'scuse", " excuse ", text)
         text = re.sub(r"\'\n", " ", text)
         text = re.sub(r"\'\xa0", " ", text)
+        text = re.sub(r"\'\xaa", " ", text)
         text = re.sub('\s+', ' ', text)
         text = text.strip(' ')
         return text
@@ -135,3 +137,8 @@ class DocumentComparator:
             punctuation_filtered.append(regex.sub('', w))
         filtered_list = self.__strip_list_noempty(punctuation_filtered)
         return ' '.join(map(str, filtered_list))
+
+    def __get_file_path(self, filename, file_size):
+        hashed_value = filename[:-4] + str(file_size)
+        filename_hash = sha256(hashed_value.encode('utf-8')).hexdigest()
+        return Path(self.__CACHE_DIR_NAME + '/' + filename_hash)
