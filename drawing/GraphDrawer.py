@@ -19,7 +19,6 @@ class GraphDrawer:
     __DEFAULT_DROPDOWN_VALUE = '-1'
     __DEFAULT_LAYOUT = 'circle'
 
-    filename_per_node_id = dict()
     similarity_arr: None
     screen_size: None
     demo_mode: bool
@@ -31,17 +30,15 @@ class GraphDrawer:
 
     def draw(self, arr, filenames):
         self.similarity_arr = arr
-        prepared_filenames = self.__prepare_file_names(filenames)
 
         app = dash.Dash()
-        elements, nodes_per_id, filename_per_node = self.__get_elements_and_filename_dict(arr, prepared_filenames)
-        self.filename_per_node_id = filename_per_node
+        elements, nodes_per_id, full_filename_per_node_id = self.__get_elements_and_filename_dict(arr, filenames)
 
         app.layout = html.Div([
             self.__get_dropdown_with_view(),
             html.Div(id='controls-container',
                      children=[
-                         self.__get_dropdown_with_documents(self.filename_per_node_id),
+                         self.__get_dropdown_with_documents(full_filename_per_node_id),
                          self.__get_slider(),
                          self.__get_slider_value()
                      ]),
@@ -61,15 +58,6 @@ class GraphDrawer:
             thread = Thread(target=app.run_server)
             webbrowser.open_new('http://127.0.0.1:8050/')
             thread.start()
-
-    def __prepare_file_names(self, file_names):
-        short_file_names = []
-        for i in range(len(file_names)):
-            name = file_names[i][:self.__MAX_NODE_NAME_LENGTH] + '...' \
-                if len(file_names[i]) > self.__MAX_NODE_NAME_LENGTH else file_names[i]
-            short_file_names.append(name)
-
-        return short_file_names
 
     def __get_cytoscape(self, elements):
         return cyto.Cytoscape(
@@ -96,30 +84,39 @@ class GraphDrawer:
         elements = []
         node_per_id = dict()
         id_per_filename = dict()
-        filename_per_node_id = dict()
+        full_filename_per_node_id = dict()
+        shortened_filenames = []
 
         curr_id = 0
         for filename in filenames:
-            node = {'data': {'id': curr_id, 'label': filename}}
+            shortened_filename = self.__shorten_filename(filename)
+            shortened_filenames.append(shortened_filename)
+            full_filename_per_node_id[curr_id] = filename
+            id_per_filename[shortened_filename] = curr_id
+
+            node = {'data': {'id': curr_id, 'label': shortened_filename}}
             elements.append(node)
             node_per_id[curr_id] = node
-            id_per_filename[filename] = curr_id
-            filename_per_node_id[curr_id] = filename
+
             curr_id += 1
 
         for (i, row) in enumerate(range(1, len(arr))):
             for col in range(0, i + 1):
                 rgb_val = int((1.0 - arr[row][col]) * 256)
                 rgb = 'rgb(' + str(rgb_val) + ',' + str(rgb_val) + ',' + str(rgb_val) + ')'
-                elements.append({'data': {'source': id_per_filename.get(filenames[row]),
-                                          'target': id_per_filename.get(filenames[col]),
+                elements.append({'data': {'source': id_per_filename.get(shortened_filenames[row]),
+                                          'target': id_per_filename.get(shortened_filenames[col]),
                                           'label': arr[row][col],
                                           'weight': self.__get_rounded_weight(arr[row][col]),
                                           'size': 1,
                                           'rgb': rgb
                                           }})
 
-        return elements, node_per_id, filename_per_node_id
+        return elements, node_per_id, full_filename_per_node_id
+
+    def __shorten_filename(self, filename):
+            return filename[:self.__MAX_NODE_NAME_LENGTH] + '...' \
+                if len(filename) > self.__MAX_NODE_NAME_LENGTH else filename
 
     @staticmethod
     def __get_rounded_weight(num):
