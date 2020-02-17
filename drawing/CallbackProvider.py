@@ -87,3 +87,7 @@ class CallbackProvider:
             if selected_document is None or selected_document == self.default_dropdown_value:
                 return None
             return self.nodes_per_id.get(int(selected_document))['data']
+
+        @app.callback(Output('slider-value', 'children'), [Input('slider-similarity', 'value')])
+        def update_slider(value):
+            return value

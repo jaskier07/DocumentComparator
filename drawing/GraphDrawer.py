@@ -17,7 +17,7 @@ class GraphDrawer:
     __EDGE_WEIGHT_PRECISION = 4
     __MAX_NODE_NAME_LENGTH = 25
     __DEFAULT_DROPDOWN_VALUE = '-1'
-    __DEFAULT_LAYOUT = 'concentric'
+    __DEFAULT_LAYOUT = 'circle'
 
     filename_per_node_id = dict()
     similarity_arr: None
@@ -33,14 +33,18 @@ class GraphDrawer:
         self.similarity_arr = arr
         prepared_filenames = self.__prepare_file_names(filenames)
 
-        app = dash.Dash(__name__)
+        app = dash.Dash()
         elements, nodes_per_id, filename_per_node = self.__get_elements_and_filename_dict(arr, prepared_filenames)
         self.filename_per_node_id = filename_per_node
 
         app.layout = html.Div([
             self.__get_dropdown_with_view(),
-            self.__get_dropdown_with_documents(self.filename_per_node_id),
-            html.P(id='extent'),
+            html.Div(id='controls-container',
+                     children=[
+                         self.__get_dropdown_with_documents(self.filename_per_node_id),
+                         self.__get_slider(),
+                         self.__get_slider_value()
+                     ]),
             self.__get_cytoscape(elements),
             html.P(id='cytoscape-tapNodeData-output'),
             html.P(id='cytoscape-tapEdgeData-output'),
@@ -52,7 +56,7 @@ class GraphDrawer:
         # TODO Moving thread creation to method in Application.py
         if self.demo_mode:
             webbrowser.open_new('http://127.0.0.1:8050/')
-            app.run_server(debug=True)
+            app.run_server(debug=self.demo_mode)
         else:
             thread = Thread(target=app.run_server)
             webbrowser.open_new('http://127.0.0.1:8050/')
@@ -125,7 +129,7 @@ class GraphDrawer:
     def __get_dropdown_with_view():
         return core.Dropdown(
             id='dropdown-view',
-            value='concentric',
+            value='circle',
             clearable=False,
             options=[
                 {'label': name.capitalize(), 'value': name}
@@ -143,4 +147,27 @@ class GraphDrawer:
                 {'label': name, 'value': id}
                 for id, name in filename_per_node_id.items()
             ]
+        )
+
+    @staticmethod
+    def __get_slider():
+        return core.Slider(
+            id='slider-similarity',
+            max=1,
+            min=0,
+            value=1,
+            step=0.05,
+            updatemode='drag',
+            marks={0: {'label': '0'},
+                   0.2: {'label': '0.2'},
+                   0.4: {'label': '0.4'},
+                   0.6: {'label': '0.6'},
+                   0.8: {'label': '0.8'},
+                   1.0: {'label': '1.0'}
+                   }
+        )
+
+    def __get_slider_value(self):
+        return html.Div(
+            id='slider-value'
         )

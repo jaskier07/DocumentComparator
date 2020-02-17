@@ -1,0 +1,27 @@
+body {
+    font-family: Calibri, Roboto, Arial !important;
+}
+
+#controls-container {
+    margin-top: 10px;
+    display: table;
+    width: 100%;
+}
+
+#dropdown-documents {
+    width: 30%;
+    display: table-cell;
+}
+
+#slider-similarity {
+    width: 30%;
+    display: table-cell;
+}
+
+#slider-value {
+    font-size: 20px;
+    font-weight: bold;
+    display: table-cell;
+    width: 50px;
+}
+

@@ -27,14 +27,6 @@ class StylesheetProvider:
                     'text-outline-color': 'white',
                     'text-opacity': '1.0'
                 }
-            },
-            {
-                'selector': '#extent',
-                'style': {
-                    'margin-top': '5px',
-                    'margin-bottom': '5px',
-                    'height': '10px'
-                }
             }
         ]
 
