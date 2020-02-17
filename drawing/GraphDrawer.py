@@ -154,7 +154,7 @@ class GraphDrawer:
             max=1,
             min=0,
             value=0,
-            step=0.05,
+            step=0.02,
             updatemode='drag',
             marks={0: {'label': '0'},
                    0.2: {'label': '0.2'},

@@ -40,7 +40,8 @@ class CallbackProvider:
                        Input('container', 'tapNodeData')])
         def update_slider(value, all_elements, layout, selected_node):
             new_styles = []
-            hidden_edges = []
+            hidden_edge_ids = []
+            hidden_node_ids = []
 
             if selected_node is not None:
                 node_id = str(selected_node['id'])
@@ -59,6 +60,7 @@ class CallbackProvider:
                                 }
                             )
                         elif element.get('source') is not None:
+                            hidden_edge_ids.append(element.get('id'))
                             new_styles.append(
                                 {
                                     'selector': id_condition_edge,
@@ -85,31 +87,29 @@ class CallbackProvider:
                                 }
                             })
 
-                return value, self.stylesheetProvider.get_stylesheet(layout['name']) + new_styles
-            else:
-                for e in all_elements:
-                    element = e.get('data')
-                    id_condition_edge = 'edge[id = "{}"]'.format(element.get('id'))
-                    if element.get('source') is not None:
-                        if element.get('weight') > value:
-                            new_styles.append(
-                                {
-                                    'selector': id_condition_edge,
-                                    'style': {
-                                        'width': self.stylesheetProvider.get_edge_width(layout['name']),
-                                    }
+
+            for e in all_elements:
+                element = e.get('data')
+                id_condition_edge = 'edge[id = "{}"]'.format(element.get('id'))
+                if element.get('source') is not None:
+                    if element.get("id") not in hidden_edge_ids and element.get('weight') > value:
+                        new_styles.append(
+                            {
+                                'selector': id_condition_edge,
+                                'style': {
+                                    'width': self.stylesheetProvider.get_edge_width(layout['name']),
                                 }
-                            )
-                        else:
-                            hidden_edges.append(element)
-                            new_styles.append(
-                                {
-                                    'selector': id_condition_edge,
-                                    'style': {
-                                        'width': 0
-                                    }
+                            }
+                        )
+                    else:
+                        new_styles.append(
+                            {
+                                'selector': id_condition_edge,
+                                'style': {
+                                    'width': 0
                                 }
-                            )
+                            }
+                        )
 
                     # for e in all_elements:
                     #     element = e.get('data')
