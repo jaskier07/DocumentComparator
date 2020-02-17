@@ -39,6 +39,7 @@ class GraphDrawer:
             html.Div(id='controls-container',
                      children=[
                          self.__get_dropdown_with_documents(full_filename_per_node_id),
+                         self.__get_button_select_all(),
                          self.__get_slider(),
                          self.__get_slider_value()
                      ]),
@@ -52,7 +53,7 @@ class GraphDrawer:
         callback_provider.define_callbacks(app)
         # TODO Moving thread creation to method in Application.py
         if self.demo_mode:
-            webbrowser.open_new('http://127.0.0.1:8050/')
+            new = webbrowser.open_new('http://127.0.0.1:8050/')
             app.run_server(debug=self.demo_mode)
         else:
             thread = Thread(target=app.run_server)
@@ -82,10 +83,10 @@ class GraphDrawer:
 
     def __get_elements_and_filename_dict(self, arr, filenames):
         elements = []
+        shortened_filenames = []
         node_per_id = dict()
         id_per_filename = dict()
         full_filename_per_node_id = dict()
-        shortened_filenames = []
 
         curr_id = 0
         for filename in filenames:
@@ -104,13 +105,14 @@ class GraphDrawer:
             for col in range(0, i + 1):
                 rgb_val = int((1.0 - arr[row][col]) * 256)
                 rgb = 'rgb(' + str(rgb_val) + ',' + str(rgb_val) + ',' + str(rgb_val) + ')'
-                elements.append({'data': {'source': id_per_filename.get(shortened_filenames[row]),
-                                          'target': id_per_filename.get(shortened_filenames[col]),
-                                          'label': arr[row][col],
-                                          'weight': self.__get_rounded_weight(arr[row][col]),
-                                          'size': 1,
-                                          'rgb': rgb
-                                          }})
+                edge = {'data': {'source': id_per_filename.get(shortened_filenames[row]),
+                                 'target': id_per_filename.get(shortened_filenames[col]),
+                                 'label': arr[row][col],
+                                 'weight': self.__get_rounded_weight(arr[row][col]),
+                                 'size': 1,
+                                 'rgb': rgb
+                                 }}
+                elements.append(edge)
 
         return elements, node_per_id, full_filename_per_node_id
 
@@ -135,7 +137,6 @@ class GraphDrawer:
         )
 
     def __get_dropdown_with_documents(self, filename_per_node_id):
-        filename_per_node_id[self.__DEFAULT_DROPDOWN_VALUE] = 'All documents'
         return core.Dropdown(
             id='dropdown-documents',
             value=self.__DEFAULT_DROPDOWN_VALUE,
@@ -152,7 +153,7 @@ class GraphDrawer:
             id='slider-similarity',
             max=1,
             min=0,
-            value=1,
+            value=0,
             step=0.05,
             updatemode='drag',
             marks={0: {'label': '0'},
@@ -167,4 +168,10 @@ class GraphDrawer:
     def __get_slider_value(self):
         return html.Div(
             id='slider-value'
+        )
+
+    def __get_button_select_all(self):
+        return html.Button(
+            'Select all',
+            id='button-select-all'
         )

@@ -9,8 +9,16 @@ body {
 }
 
 #dropdown-documents {
-    width: 30%;
+    width: 50%;
     display: table-cell;
+}
+
+#button-select-all {
+    width: 50%;
+    display: table-cell;
+    font-size: 20px;
+    margin-left: 10px;
+    background-color: aliceblue;
 }
 
 #slider-similarity {
