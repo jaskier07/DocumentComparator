@@ -1,4 +1,3 @@
-import os
 from functools import partial
 from tkinter import *
 from tkinter import filedialog
@@ -121,6 +120,7 @@ if not DEMO_MODE:
     button_browse = Button(text="Select files", command=browse_files)
     button_browse.grid(row=1, column=0, sticky="S", padx=(5, 5))
 
+    window.protocol("WM_DELETE_WINDOW", IOUtils.delete_files())
     window.mainloop()
 else:
     arr = [[0, 0.53682293, 0.49240103, 0.49318128, 0.04009207, 0.03515585],
