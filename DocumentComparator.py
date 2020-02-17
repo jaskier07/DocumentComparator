@@ -9,7 +9,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from pathlib import Path
 from hashlib import sha256
 from shutil import copy2
-import atexit
 
 from utils.IOUtils import IOUtils
 
@@ -25,12 +24,6 @@ class DocumentComparator:
         nltk.download('stopwords')
         nltk.download('wordnet')
         self.__bar_incrementation_value = 100.0 / len(paths_to_pdf_files) / self.__BAR_UPDATES
-
-        filenames = []
-        for path in paths_to_pdf_files:
-            filename = os.path.basename(path)
-            filenames.append(filename)
-        atexit.register(IOUtils.delete_files, filenames)
 
         documents = {}
         documents_sizes = {}
