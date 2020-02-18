@@ -34,3 +34,10 @@ class IOUtils:
                 pdf_filenames.append(os.path.basename(filepath))
                 paths_to_pdf_files.append(filepath)
         return [paths_to_pdf_files, pdf_filenames]
+
+    @staticmethod
+    def delete_files_from_assets():
+        files = [name for name in os.listdir("assets") if name.endswith(".pdf")]
+        print(files)
+        for file in files:
+            os.remove("assets/" + file)

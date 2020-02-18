@@ -51,7 +51,10 @@ class GraphDrawer:
             self.__get_cytoscape(elements),
             html.P(id='cytoscape-tapNodeData-output'),
             html.P(id='cytoscape-tapEdgeData-output'),
-            html.P(id='cytoscape-broker')
+            html.P(id='cytoscape-broker'),
+            html.Div(id='pdf-viewer', children=[
+                html.Iframe(id='pdf-viewer-frame', src='assets/skoda.pdf')
+            ])
         ])
 
         callback_provider = CallbackProvider(self.__DEFAULT_DROPDOWN_VALUE, nodes_per_id)
