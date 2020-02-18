@@ -2,7 +2,7 @@ body {
     font-family: Calibri, Roboto, Arial !important;
 }
 
-#controls-container {
+.controls-container {
     margin-top: 10px;
     display: table;
     width: 100%;
@@ -13,12 +13,15 @@ body {
     display: table-cell;
 }
 
-#button-select-all {
-    width: 50%;
+.button {
+    width: 20%;
     display: table-cell;
     font-size: 20px;
     margin-left: 10px;
-    background-color: aliceblue;
+    background-color: #53adff;
+    height: 38px;
+    border-color: darkgray;
+    border-style: solid;
 }
 
 #slider-similarity {
@@ -33,3 +36,17 @@ body {
     width: 50px;
 }
 
+.label {
+    display: table-cell;
+    font-size: 20px;
+    width: 8%;
+}
+
+#dropdown-view {
+    display: table-cell;
+    width: 10%;
+}
+
+#label-slider {
+    padding-left: 10px;
+}

@@ -35,13 +35,18 @@ class GraphDrawer:
         elements, nodes_per_id, full_filename_per_node_id = self.__get_elements_and_filename_dict(arr, filenames)
 
         app.layout = html.Div([
-            self.__get_dropdown_with_view(),
-            html.Div(id='controls-container',
+            html.Div(className='controls-container',
                      children=[
-                         self.__get_dropdown_with_documents(full_filename_per_node_id),
-                         self.__get_button_select_all(),
+                         self.__get_label_view(),
+                         self.__get_dropdown_with_view(),
+                         self.__get_label_slider(),
                          self.__get_slider(),
                          self.__get_slider_value()
+                     ]),
+            html.Div(className='controls-container',
+                     children=[
+                         self.__get_dropdown_with_documents(full_filename_per_node_id),
+                         self.__get_button_select_all()
                      ]),
             self.__get_cytoscape(elements),
             html.P(id='cytoscape-tapNodeData-output'),
@@ -54,7 +59,7 @@ class GraphDrawer:
         # TODO Moving thread creation to method in Application.py
         if self.demo_mode:
             new = webbrowser.open_new('http://127.0.0.1:8050/')
-            app.run_server(debug=self.demo_mode)
+            app.run_server(debug=True)
         else:
             thread = Thread(target=app.run_server)
             webbrowser.open_new('http://127.0.0.1:8050/')
@@ -117,8 +122,8 @@ class GraphDrawer:
         return elements, node_per_id, full_filename_per_node_id
 
     def __shorten_filename(self, filename):
-            return filename[:self.__MAX_NODE_NAME_LENGTH] + '...' \
-                if len(filename) > self.__MAX_NODE_NAME_LENGTH else filename
+        return filename[:self.__MAX_NODE_NAME_LENGTH] + '...' \
+            if len(filename) > self.__MAX_NODE_NAME_LENGTH else filename
 
     @staticmethod
     def __get_rounded_weight(num):
@@ -173,5 +178,19 @@ class GraphDrawer:
     def __get_button_select_all(self):
         return html.Button(
             'Select all',
-            id='button-select-all'
+            id='button-select-all',
+            className='button'
+        )
+
+    def __get_label_view(self):
+        return html.Div(
+            className='label',
+            children='Select view type'
+        )
+
+    def __get_label_slider(self):
+        return html.Div(
+            id='label-slider',
+            className='label',
+            children='Adjust similarity'
         )

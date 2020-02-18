@@ -28,10 +28,6 @@ class CallbackProvider:
                 return None
             return self.nodes_per_id.get(int(selected_document))['data']
 
-        @app.callback(Output('dropdown-documents', 'value'), [Input('button-select-all', 'n_clicks')])
-        def f(id):
-            return '-1'
-
         @app.callback([Output('slider-value', 'children'),
                        Output('container', 'stylesheet')],
                       [Input('slider-similarity', 'value'),
@@ -41,14 +37,17 @@ class CallbackProvider:
         def update_slider(value, all_elements, layout, selected_node):
             new_styles = []
             hidden_edge_ids = []
-            hidden_node_ids = []
+            nodes = set()
+
+            hidden_edge_ids_per_node_id = dict()
 
             if selected_node is not None:
                 node_id = str(selected_node['id'])
                 if node_id is not None and all_elements:
                     for e in all_elements:
                         element = e.get('data')
-                        id_condition_edge = 'edge[id = "{}"]'.format(element.get('id'))
+                        edge_id = element.get('id')
+                        id_condition_edge = 'edge[id = "{}"]'.format(edge_id)
                         if element.get('source') == node_id or element.get('target') == node_id:
                             new_styles.append(
                                 {
@@ -60,7 +59,15 @@ class CallbackProvider:
                                 }
                             )
                         elif element.get('source') is not None:
-                            hidden_edge_ids.append(element.get('id'))
+                            hidden_edge_ids.append(edge_id)
+                            if element.get('source') not in hidden_edge_ids_per_node_id:
+                                hidden_edge_ids_per_node_id[element.get('source')] = set()
+                            hidden_edge_ids_per_node_id[element.get('source')].add(edge_id)
+
+                            if element.get('target') not in hidden_edge_ids_per_node_id:
+                                hidden_edge_ids_per_node_id[element.get('target')] = set()
+                            hidden_edge_ids_per_node_id[element.get('target')].add(edge_id)
+
                             new_styles.append(
                                 {
                                     'selector': id_condition_edge,
@@ -70,68 +77,70 @@ class CallbackProvider:
                                     }
                                 }
                             )
-                        elif element.get('id') == node_id:
-                            id_condition_node = 'node[id = "{}"]'.format(element.get('id'))
-                            new_styles.append({
-                                'selector': id_condition_node,
-                                'style': {
-                                    'background-color': '#42a1f5'
-                                }
-                            })
                         else:
                             id_condition_node = 'node[id = "{}"]'.format(element.get('id'))
+                            if element.get('id') == node_id:
+                                color = '#42a1f5'
+                            else:
+                                color = 'gray'
                             new_styles.append({
                                 'selector': id_condition_node,
                                 'style': {
-                                    'background-color': 'gray'
+                                    'background-color': color
                                 }
                             })
-
 
             for e in all_elements:
                 element = e.get('data')
-                id_condition_edge = 'edge[id = "{}"]'.format(element.get('id'))
                 if element.get('source') is not None:
+                    edge_id = element.get('id')
+                    id_condition_edge = 'edge[id = "{}"]'.format(edge_id)
                     if element.get("id") not in hidden_edge_ids and element.get('weight') > value:
-                        new_styles.append(
-                            {
-                                'selector': id_condition_edge,
-                                'style': {
-                                    'width': self.stylesheetProvider.get_edge_width(layout['name']),
-                                }
-                            }
-                        )
+                        width = self.stylesheetProvider.get_edge_width(layout['name'])
                     else:
-                        new_styles.append(
-                            {
-                                'selector': id_condition_edge,
-                                'style': {
-                                    'width': 0
-                                }
+                        width = 0
+                        hidden_edge_ids.append(edge_id)
+
+                        if element.get('source') not in hidden_edge_ids_per_node_id:
+                            hidden_edge_ids_per_node_id[element.get('source')] = set()
+                        hidden_edge_ids_per_node_id[element.get('source')].add(edge_id)
+
+                        if element.get('target') not in hidden_edge_ids_per_node_id:
+                            hidden_edge_ids_per_node_id[element.get('target')] = set()
+                        hidden_edge_ids_per_node_id[element.get('target')].add(edge_id)
+                    new_styles.append(
+                        {
+                            'selector': id_condition_edge,
+                            'style': {
+                                'width': width
                             }
-                        )
+                        }
+                    )
+                else:
+                    nodes.add(element.get('id'))
 
-                    # for e in all_elements:
-                    #     element = e.get('data')
-                    #     id_condition_node = 'node[id = "{}"]'.format(element.get('id'))
-                    #     if element.get('source') is None:
-
-
-                    # elif element.get('id') == node_id:
-                    #     id_condition_node = 'node[id = "{}"]'.format(element.get('id'))
-                    #     new_styles.append({
-                    #         'selector': id_condition_node,
-                    #         'style': {
-                    #             'background-color': '#42a1f5'
-                    #         }
-                    #     })
-                    # else:
-                    #     id_condition_node = 'node[id = "{}"]'.format(element.get('id'))
-                    #     new_styles.append({
-                    #         'selector': id_condition_node,
-                    #         'style': {
-                    #             'background-color': 'gray'
-                    #         }
-                    #     })
+            sp = StylesheetProvider()
+            for node_id in nodes:
+                id_condition_node = 'node[id = "{}"]'.format(node_id)
+                if node_id in hidden_edge_ids_per_node_id and len(hidden_edge_ids_per_node_id[node_id]) == len(nodes) - 1:
+                    new_styles.append({
+                        'selector': id_condition_node,
+                        'style': {
+                            'width': 0,
+                            'height': 0,
+                            'color': 'black',
+                            'label': '',
+                        }
+                    })
+                else:
+                    new_styles.append({
+                        'selector': id_condition_node,
+                        'style': {
+                            'width': sp.get_node_width(layout),
+                            'height': sp.get_node_width(layout),
+                            'color': 'black',
+                            'label': 'data(label)',
+                        }
+                    })
 
             return value, self.stylesheetProvider.get_stylesheet(layout['name']) + new_styles
