@@ -41,3 +41,7 @@ class IOUtils:
         print(files)
         for file in files:
             os.remove("assets/" + file)
+
+    @staticmethod
+    def shorten_file_name(filename, max_length=25):
+        return filename[:max_length-3] + '...pdf' if len(filename) > max_length else filename

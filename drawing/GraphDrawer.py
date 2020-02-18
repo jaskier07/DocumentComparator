@@ -3,13 +3,13 @@ import webbrowser
 from threading import Thread
 
 import dash
+import dash_core_components as core
 import dash_cytoscape as cyto
 import dash_html_components as html
-import dash_core_components as core
-from dash_cytoscape import Cytoscape
 
 from drawing.CallbackProvider import CallbackProvider
 from drawing.StylesheetProvider import StylesheetProvider
+from utils.IOUtils import IOUtils
 
 
 class GraphDrawer:
@@ -53,7 +53,7 @@ class GraphDrawer:
             html.P(id='cytoscape-tapEdgeData-output'),
             html.P(id='cytoscape-broker'),
             html.Div(id='pdf-viewer', children=[
-                html.Iframe(id='pdf-viewer-frame', src='assets/skoda.pdf')
+                html.Iframe(id='pdf-viewer-frame')
             ])
         ])
 
@@ -98,7 +98,7 @@ class GraphDrawer:
 
         curr_id = 0
         for filename in filenames:
-            shortened_filename = self.__shorten_filename(filename)
+            shortened_filename = IOUtils.shorten_file_name(filename, self.__MAX_NODE_NAME_LENGTH)
             shortened_filenames.append(shortened_filename)
             full_filename_per_node_id[curr_id] = filename
             id_per_filename[shortened_filename] = curr_id
@@ -123,10 +123,6 @@ class GraphDrawer:
                 elements.append(edge)
 
         return elements, node_per_id, full_filename_per_node_id
-
-    def __shorten_filename(self, filename):
-        return filename[:self.__MAX_NODE_NAME_LENGTH] + '...' \
-            if len(filename) > self.__MAX_NODE_NAME_LENGTH else filename
 
     @staticmethod
     def __get_rounded_weight(num):
