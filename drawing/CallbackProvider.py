@@ -1,8 +1,8 @@
-from numbers import Number
-
 from dash.dependencies import Output, Input
 
 from drawing.StylesheetProvider import StylesheetProvider
+
+import dash_html_components as html
 
 
 class CallbackProvider:
@@ -29,7 +29,8 @@ class CallbackProvider:
             return self.nodes_per_id.get(int(selected_document))['data']
 
         @app.callback([Output('slider-value', 'children'),
-                       Output('container', 'stylesheet')],
+                       Output('container', 'stylesheet'),
+                       Output('pdf-viewer', 'children')],
                       [Input('slider-similarity', 'value'),
                        Input('container', 'elements'),
                        Input('container', 'layout'),
@@ -122,7 +123,8 @@ class CallbackProvider:
             sp = StylesheetProvider()
             for node_id in nodes:
                 id_condition_node = 'node[id = "{}"]'.format(node_id)
-                if node_id in hidden_edge_ids_per_node_id and len(hidden_edge_ids_per_node_id[node_id]) == len(nodes) - 1:
+                if node_id in hidden_edge_ids_per_node_id and len(hidden_edge_ids_per_node_id[node_id]) == len(
+                        nodes) - 1:
                     new_styles.append({
                         'selector': id_condition_node,
                         'style': {
@@ -143,4 +145,8 @@ class CallbackProvider:
                         }
                     })
 
-            return value, self.stylesheetProvider.get_stylesheet(layout['name']) + new_styles
+            children = []
+            if selected_node is not None:
+                children = html.Iframe(id='pdf-viewer-frame', src='assets/' + selected_node['label'])
+
+            return value, self.stylesheetProvider.get_stylesheet(layout['name']) + new_styles, children

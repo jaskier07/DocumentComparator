@@ -36,6 +36,14 @@ body {
     width: 50px;
 }
 
+#pdf-viewer-frame {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    height: 400px;
+}
+
 .label {
     display: table-cell;
     font-size: 20px;

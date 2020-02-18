@@ -8,6 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from pathlib import Path
 from hashlib import sha256
+from shutil import copy2
 
 from utils.IOUtils import IOUtils
 
@@ -28,6 +29,8 @@ class DocumentComparator:
         documents_sizes = {}
         for path in paths_to_pdf_files:
             document_name = os.path.basename(path)
+            doc_name_short = IOUtils.shorten_file_name(document_name)
+            copy2(path, 'assets/' + doc_name_short)
             document_file_size = os.path.getsize(path)
             doc_file = self.__get_file_path(document_name, document_file_size)
             document_content = ''
