@@ -11,7 +11,7 @@ from DocumentComparator import DocumentComparator
 from utils.IOUtils import IOUtils
 import nltk
 
-DEMO_MODE = True
+DEMO_MODE = False
 
 
 def hide_components():

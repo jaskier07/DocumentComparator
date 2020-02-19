@@ -50,15 +50,14 @@ class GraphDrawer:
                      ]),
             html.Div(id='pdf-and-cytoscape-container',
                      children=[
-                         html.Div(id='pdf-container'),
+                         html.Div(id='pdf-viewer', children=[
+                             html.Iframe(id='pdf-viewer-frame')
+                         ]),
                          self.__get_cytoscape(elements)
                      ]),
             html.P(id='cytoscape-tapNodeData-output'),
             html.P(id='cytoscape-tapEdgeData-output'),
             html.P(id='cytoscape-broker'),
-            html.Div(id='pdf-viewer', children=[
-                html.Iframe(id='pdf-viewer-frame')
-            ])
         ])
 
         callback_provider = CallbackProvider(self.__DEFAULT_DROPDOWN_VALUE, nodes_per_id)
