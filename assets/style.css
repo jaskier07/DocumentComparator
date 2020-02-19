@@ -2,6 +2,25 @@ body {
     font-family: Calibri, Roboto, Arial !important;
 }
 
+#pdf-and-cytoscape-container {
+    display: table;
+    width: 100%;
+}
+
+#cytoscape-container {
+    display: table-cell;
+}
+
+#pdf-container {
+    display: table-cell;
+    width: 30%;
+
+    /*TODO remove*/
+    border: 10px;
+    border-color: #53adff;
+    border-style: solid;
+}
+
 .controls-container {
     margin-top: 10px;
     display: table;

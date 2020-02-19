@@ -1,6 +1,7 @@
 from dash.dependencies import Output, Input
 
 from drawing.StylesheetProvider import StylesheetProvider
+import dash_html_components as html
 
 import dash_html_components as html
 
@@ -15,26 +16,26 @@ class CallbackProvider:
         self.nodes_per_id = nodes_per_id
 
     def define_callbacks(self, app):
-        @app.callback(Output('container', 'layout'), [Input('dropdown-view', 'value')])
+        @app.callback(Output('cytoscape-container', 'layout'), [Input('dropdown-view', 'value')])
         def update_layout(layout):
             return {
                 'name': layout,
                 'animate': True
             }
 
-        @app.callback(Output('container', 'tapNodeData'), [Input('dropdown-documents', 'value')])
+        @app.callback(Output('cytoscape-container', 'tapNodeData'), [Input('dropdown-documents', 'value')])
         def update_graph_on_document_selection(selected_document):
             if selected_document is None or selected_document == self.default_dropdown_value:
                 return None
             return self.nodes_per_id.get(int(selected_document))['data']
 
         @app.callback([Output('slider-value', 'children'),
-                       Output('container', 'stylesheet'),
+                       Output('cytoscape-container', 'stylesheet'),
                        Output('pdf-viewer', 'children')],
                       [Input('slider-similarity', 'value'),
-                       Input('container', 'elements'),
-                       Input('container', 'layout'),
-                       Input('container', 'tapNodeData')])
+                       Input('cytoscape-container', 'elements'),
+                       Input('cytoscape-container', 'layout'),
+                       Input('cytoscape-container', 'tapNodeData')])
         def update_slider(value, all_elements, layout, selected_node):
             new_styles = []
             hidden_edge_ids = []

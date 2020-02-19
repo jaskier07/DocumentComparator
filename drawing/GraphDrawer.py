@@ -48,7 +48,11 @@ class GraphDrawer:
                          self.__get_dropdown_with_documents(full_filename_per_node_id),
                          self.__get_button_select_all()
                      ]),
-            self.__get_cytoscape(elements),
+            html.Div(id='pdf-and-cytoscape-container',
+                     children=[
+                         html.Div(id='pdf-container'),
+                         self.__get_cytoscape(elements)
+                     ]),
             html.P(id='cytoscape-tapNodeData-output'),
             html.P(id='cytoscape-tapEdgeData-output'),
             html.P(id='cytoscape-broker'),
@@ -70,11 +74,11 @@ class GraphDrawer:
 
     def __get_cytoscape(self, elements):
         return cyto.Cytoscape(
-            id='container',
+            id='cytoscape-container',
             elements=elements,
             style={
-                'width': self.screen_size[0],
-                'height': self.screen_size[1],
+                'width': self.screen_size[0] - 300,
+                'height': self.screen_size[1]
             },
             layout={
                 'name': self.__DEFAULT_LAYOUT,

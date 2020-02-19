@@ -31,19 +31,19 @@ class StylesheetProvider:
         ]
 
     def __is_concentric(self, layout):
-        return layout == 'concentric'
+        return layout == 'concentric'or (type(layout) != str and layout['name'] == 'concentric')
 
     def __is_cose(self, layout):
-        return layout == 'cose'
+        return layout == 'cose' or (type(layout) != str and layout['name'] == 'cose')
 
     def __is_circle(self, layout):
-        return layout == 'circle'
+        return layout == 'circle' or (type(layout) != str and layout['name'] == 'circle')
 
     def get_node_width(self, layout):
         if self.__is_concentric(layout):
-            return '7px'
+            return '5px'
         if self.__is_cose(layout):
-            return '10px'
+            return '9px'
         if self.__is_circle(layout):
             return "45px"
         return '30px'
@@ -52,7 +52,7 @@ class StylesheetProvider:
         if self.__is_concentric(layout):
             return '2px'
         if self.__is_cose(layout):
-            return '4px'
+            return '2px'
         if self.__is_circle(layout):
             return "16px"
         return '12px'
@@ -61,16 +61,16 @@ class StylesheetProvider:
         if self.__is_concentric(layout):
             return '0.5px'
         if self.__is_cose(layout):
-            return '1.2px'
+            return '0.8px'
         if self.__is_circle(layout):
             return "7px"
         return '5px'
 
     def get_text_outline_size(self, layout):
         if self.__is_concentric(layout):
-            return '5px'
+            return '0.5px'
         if self.__is_cose(layout):
-            return '1px'
+            return '0.5px'
         if self.__is_circle(layout):
             return "3px"
         return '2px'
