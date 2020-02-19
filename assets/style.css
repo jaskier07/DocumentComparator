@@ -11,8 +11,9 @@ body {
     display: table-cell;
 }
 
-#pdf-container {
+#pdf-viewer {
     display: table-cell;
+    position: relative;
     width: 30%;
 }
 
@@ -51,9 +52,9 @@ body {
 }
 
 #pdf-viewer-frame {
-    display: table-cell;
     width: 100%;
-    height: 600%;
+    height: 100%;
+    position: absolute;
 }
 
 .label {
